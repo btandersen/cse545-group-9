@@ -1,0 +1,30 @@
+<FORM enctype="multipart/form-data" action="FileUpdate" method=POST>
+    <table border="0">
+        <tr>
+            <td colspan="2">File Update</td>
+        </tr>
+        <tr>
+            <td>Enter Title:</td>
+            <td><input name="title" type="text"</td>
+        </tr>
+        <tr>
+            <td>Enter New Title:</td>
+            <td><input name="newtitle" type="text"</td>
+        </tr>
+        <tr>
+            <td>Enter New Author:</td>
+            <td><input name="newauthor" type="text"</td>
+        </tr>
+        <tr>
+            <td>Enter New Department:</td>
+            <td><input name="newdept" type="text"</td>
+        </tr>
+        <tr>
+            <td>Choose the file To Update</td>
+            <td><input name="file" type="file" /></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="submit" value="Submit" /></td>
+        </tr>
+    </table>     
+</FORM>

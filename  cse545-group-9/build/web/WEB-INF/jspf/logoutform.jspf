@@ -1,0 +1,10 @@
+<form action="Logout" method="POST">
+    <table border="0">
+        <tbody>
+            <tr>
+                <td></td>
+                <td><input type="submit" value="Logout" /></td>
+            </tr>
+        </tbody>
+    </table>
+</form>

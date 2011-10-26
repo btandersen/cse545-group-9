@@ -1,0 +1,22 @@
+<form action="NewUser" method="POST">
+    <table border="0">
+        <tbody>
+            <tr>
+                <td align="right">Username:&nbsp;</td>
+                <td>
+                    <input type="text" name="username" />
+                </td>
+            </tr>
+            <tr>
+                <td align="right">Password:&nbsp;</td>
+                <td>
+                    <input type="password" name="password" />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="submit" value="Submit Request" /></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
