@@ -1,0 +1,17 @@
+<FORM action="FileDownload" method=POST>
+    <table border="0">
+        <tr>
+            <td colspan="2">File Download</td>
+        </tr>
+        <tr>
+            <td align="right">Filename:&nbsp;</td>
+            <td>
+                <input type="text" name="filename" />
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Submit" /></td>
+        </tr>
+    </table>     
+</FORM>
