@@ -165,7 +165,7 @@ public class FileUpdate extends HttpServlet
                         ownerRs = ownerStmt.executeQuery(ownerQuery);
                         shareRs = shareStmt.executeQuery(shareQuery);
 
-                        if (uid.equals(ouid) || shareRs.next() || ((ownerRs.getInt("role") <= role) && userDept.contains(docRs.getString("dept"))))
+                        if (uid.equals(ouid) || shareRs.next() || ((Roles.REG_EMP.ordinal() < role) && (ownerRs.getInt("role") <= role) && userDept.contains(docRs.getString("dept"))))
                         {
                             try
                             {
