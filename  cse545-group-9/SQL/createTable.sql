@@ -104,6 +104,22 @@ CREATE  TABLE IF NOT EXISTS `mydb`.`Locked` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `mydb`.`Log`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`Log` ;
+
+CREATE  TABLE IF NOT EXISTS `mydb`.`Log` (
+  `idLog` INT NOT NULL AUTO_INCREMENT ,
+  `uname` VARCHAR(45) NULL ,
+  `title` VARCHAR(45) NULL ,
+  `action` VARCHAR(45) NULL ,
+  `result` VARCHAR(45) NULL ,
+  `time` DATETIME NULL ,
+  PRIMARY KEY (`idLog`) )
+ENGINE = InnoDB;
+
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
