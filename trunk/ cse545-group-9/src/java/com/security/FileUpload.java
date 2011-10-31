@@ -134,7 +134,7 @@ public class FileUpload extends HttpServlet
                                 }
                             }
 
-                            if (userDept.equals(dept))
+                            if (userDept.contains(dept))
                             {
                                 PreparedStatement psmt = conn.prepareStatement("insert into mydb.docs(title,auth,dept,ouid,created,filename,file)" + "values(?,?,?,?,?,?,?)");
                                 psmt.setString(1, title);

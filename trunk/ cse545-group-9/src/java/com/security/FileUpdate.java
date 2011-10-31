@@ -49,6 +49,11 @@ public class FileUpdate extends HttpServlet
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
+        boolean result = false;
+        
+        String user = request.getRemoteUser();
+        String title = null;
+
         // Check that we have a file upload request
         if (ServletFileUpload.isMultipartContent(request))
         {
@@ -57,8 +62,7 @@ public class FileUpdate extends HttpServlet
             Statement ownerStmt = null;
             Statement shareStmt = null;
 
-            String user = request.getRemoteUser();
-            String title = null;
+
 
             String uid = null;
             String did = null;
@@ -161,7 +165,7 @@ public class FileUpdate extends HttpServlet
 
                         shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
                                 + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "U" + "'";
-                        
+
                         ownerRs = ownerStmt.executeQuery(ownerQuery);
                         shareRs = shareStmt.executeQuery(shareQuery);
 
@@ -171,15 +175,6 @@ public class FileUpdate extends HttpServlet
                             {
                                 if (userDept.equals(newDept))
                                 {
-//                                    Date lastMod = new Date((new GregorianCalendar()).getTimeInMillis());
-//                                    docRs.updateString("title", newTitle);
-//                                    docRs.updateString("auth", newAuth);
-//                                    docRs.updateString("dept", newDept);
-//                                    docRs.updateDate("lastMod", lastMod);
-//                                    docRs.updateString("filename", filename);
-//                                    docRs.updateBinaryStream("file", uploadedStream, sizeInBytes);
-//                                    docRs.updateRow();
-
                                     PreparedStatement psmt = conn.prepareStatement("UPDATE mydb.docs SET title=?,auth=?,dept=?,lastMod=?,filename=?,file=? WHERE did = " + did);
                                     psmt.setString(1, newTitle);
                                     psmt.setString(2, newAuth);
@@ -189,6 +184,8 @@ public class FileUpdate extends HttpServlet
                                     psmt.setBinaryStream(6, uploadedStream, (int) sizeInBytes);
 
                                     int s = psmt.executeUpdate();
+                                    
+                                    result = true;
                                 }
                                 else
                                 {
@@ -221,6 +218,22 @@ public class FileUpdate extends HttpServlet
             {
                 //
             }
+        }
+
+        // log result
+        try
+        {
+            Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('" + 
+                    user + "','"  + 
+                    title + "','" + 
+                    "'update','" + 
+                    String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+            logStmt.executeQuery(logQuery);
+        }
+        catch (Exception e)
+        {
+            // logging failed
         }
     }
 
