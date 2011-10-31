@@ -54,6 +54,7 @@ public class FileUpdate extends HttpServlet
         {
             Statement userStmt = null;
             Statement docStmt = null;
+            Statement ownerStmt = null;
             Statement shareStmt = null;
 
             String user = request.getRemoteUser();
@@ -80,6 +81,8 @@ public class FileUpdate extends HttpServlet
             String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
                     + " WHERE " + "uname" + " = '" + user + "'";
 
+            String docQuery = null;
+            String ownerQuery = null;
             String shareQuery = null;
 
             try
@@ -131,14 +134,16 @@ public class FileUpdate extends HttpServlet
                 }
                 try
                 {
-                    String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
+                    docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
                             + " WHERE " + "title" + " = '" + title + "'";
 
                     userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
                     docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                    ownerStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
                     shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
                     ResultSet userRs = userStmt.executeQuery(userQuery);
                     ResultSet docRs = docStmt.executeQuery(docQuery);
+                    ResultSet ownerRs = null;
                     ResultSet shareRs = null;
 
                     if (userRs.next() && docRs.next())
@@ -151,12 +156,16 @@ public class FileUpdate extends HttpServlet
                         docDept = docRs.getString("dept");
                         ouid = docRs.getString("ouid");
 
+                        ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                                + " WHERE " + "uname" + " = '" + ouid + "'";
+
                         shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
                                 + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "U" + "'";
-
+                        
+                        ownerRs = ownerStmt.executeQuery(ownerQuery);
                         shareRs = shareStmt.executeQuery(shareQuery);
 
-                        if (uid.equals(ouid) || shareRs.next())
+                        if (uid.equals(ouid) || shareRs.next() || ((ownerRs.getInt("role") <= role) && userDept.contains(docRs.getString("dept"))))
                         {
                             try
                             {
