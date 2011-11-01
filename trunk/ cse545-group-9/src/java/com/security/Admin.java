@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Administrator
  */
-public class Admin extends HttpServlet {
-
+public class Admin extends HttpServlet
+{
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -25,10 +25,12 @@ public class Admin extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        try {
+        try
+        {
             /* TODO output your page here
             out.println("<html>");
             out.println("<head>");
@@ -39,7 +41,9 @@ public class Admin extends HttpServlet {
             out.println("</body>");
             out.println("</html>");
              */
-        } finally {            
+        }
+        finally
+        {
             out.close();
         }
     }
@@ -54,7 +58,8 @@ public class Admin extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         processRequest(request, response);
     }
 
@@ -67,7 +72,8 @@ public class Admin extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         processRequest(request, response);
     }
 
@@ -76,7 +82,8 @@ public class Admin extends HttpServlet {
      * @return a String containing servlet description
      */
     @Override
-    public String getServletInfo() {
+    public String getServletInfo()
+    {
         return "Short description";
     }// </editor-fold>
 }
