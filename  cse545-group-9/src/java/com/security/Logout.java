@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Administrator
  */
-public class Logout extends HttpServlet {
-
+public class Logout extends HttpServlet
+{
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -25,7 +25,8 @@ public class Logout extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         request.logout();
         response.sendRedirect("../index.jsp");
     }
@@ -39,7 +40,8 @@ public class Logout extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         processRequest(request, response);
     }
 }

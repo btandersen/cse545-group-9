@@ -87,14 +87,14 @@ public class FileShare extends HttpServlet
                     {
                         String suid = String.valueOf(shareUserRs.getInt("uid"));
                         String sdid = String.valueOf(docRs.getInt("did"));
-                        
+
                         Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
                         String shareQuery = "INSERT INTO mydb.Shared (sdid,suid,perm) VALUES ('"
                                 + sdid + "','"
                                 + suid + "','"
                                 + perm + "','";
-                        
+
                         shareStmt.executeUpdate(shareQuery);
                     }
                     else

@@ -80,8 +80,8 @@ public class FileDownload extends HttpServlet
 
             String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
                     + " WHERE " + "title" + " = '" + title + "'";
-            
-            
+
+
 
             userRs = userStmt.executeQuery(userQuery);
             docRs = docStmt.executeQuery(docQuery);
@@ -97,13 +97,13 @@ public class FileDownload extends HttpServlet
 
                 String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
                         + " WHERE " + "uname" + " = '" + ouid + "'";
-                
+
                 String shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
-                                + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "U" + "'";
+                        + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "U" + "'";
 
                 ownerRs = ownerStmt.executeQuery(ownerQuery);
                 shareRs = shareStmt.executeQuery(shareQuery);
-                
+
                 boolean shared = shareRs.next();
 
                 if (ownerRs.next())
@@ -112,8 +112,8 @@ public class FileDownload extends HttpServlet
 
                     if (userRole >= Roles.GUEST.ordinal())
                     {
-                        if ((shared && shareRs.getString("perm").equals("R")) ||
-                                uid.equals(ouid)
+                        if ((shared && shareRs.getString("perm").equals("R"))
+                                || uid.equals(ouid)
                                 || ((userRole > Roles.REG_EMP.ordinal()) && (userRole >= ownerRole) && (userDept.contains(docDept))))
                         {
                             Blob b = docRs.getBlob("file");
@@ -133,7 +133,7 @@ public class FileDownload extends HttpServlet
                                 {
                                     out.write(readBytes);
                                 }
-                                
+
                                 result = true;
                             }
                             else

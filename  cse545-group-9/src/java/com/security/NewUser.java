@@ -18,21 +18,25 @@ import javax.naming.*;
  *
  * @author Administrator
  */
-public class NewUser extends HttpServlet {
-
+public class NewUser extends HttpServlet
+{
     InitialContext ctx;
     DataSource ds;
     Connection conn;
 
     @Override
-    public void init() {
+    public void init()
+    {
 
-        try {
+        try
+        {
             ctx = new InitialContext();
             //ds = (DataSource) ctx.lookup("java:comp/env/jdbc/MySQLDataSource");
             ds = (DataSource) ctx.lookup("jdbc/MySQLDataSource");
             conn = ds.getConnection();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             //
         }
     }
@@ -44,39 +48,47 @@ public class NewUser extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String user = request.getParameter("username");
-        String pass = request.getParameter("password");
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    {
+        String uname = request.getParameter("uname");
+        String fname = request.getParameter("fname");
+        String lname = request.getParameter("lname");
+        String email = request.getParameter("email");
+        String pwd = request.getParameter("pwd");
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
         String query = "";
 
-        try {
+        try
+        {
             //open connection to db
             Statement stmt = conn.createStatement();
-            query = "INSERT INTO mydb.users (`uname`) VALUES ('" + user + "')";
+            query = "INSERT INTO mydb.users (`uname`) VALUES ('" + uname + "')";
             stmt.executeUpdate(query); //execute (insert the row)
             stmt.close(); //close the statement
-        } catch (SQLException e) //generic SQL error
+        }
+        catch (SQLException e) //generic SQL error
         {
             System.out.println(e); //spit out SQL error
         }
 
-        try {
+        try
+        {
             out.println("<html>");
             out.println("<head>");
             out.println("<title>New User Request</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Request sent for: " + user + "</h1>");
-            out.println("<h1>Password: " + pass + "</h1>");
+            out.println("<h1>Request sent for: " + uname + "</h1>");
+            out.println("<h1>Password: " + pwd + "</h1>");
             out.println("</body>");
             out.println("</html>");
             response.setHeader("Refresh", "5;index.jsp");
-        } finally {
+        }
+        finally
+        {
             out.close();
         }
     }
@@ -90,7 +102,8 @@ public class NewUser extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         processRequest(request, response);
     }
 }

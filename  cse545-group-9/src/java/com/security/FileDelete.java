@@ -46,7 +46,7 @@ public class FileDelete extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         boolean result = false;
-        
+
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
 
@@ -118,16 +118,16 @@ public class FileDelete extends HttpServlet
         {
             // SQL error
         }
-        
+
         // log result
         try
         {
             Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('" + 
-                    user + "','"  + 
-                    title + "','" + 
-                    "'delete','" + 
-                    String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
+                    + user + "','"
+                    + title + "','"
+                    + "'delete','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
             logStmt.executeUpdate(logQuery);
         }
         catch (Exception e)
