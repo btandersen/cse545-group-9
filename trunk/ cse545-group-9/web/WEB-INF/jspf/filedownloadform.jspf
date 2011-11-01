@@ -6,7 +6,7 @@
         <tr>
             <td align="right">Filename:&nbsp;</td>
             <td>
-                <input type="text" name="filename" />
+                <input type="text" name="title" />
             </td>
         </tr>
         <tr>

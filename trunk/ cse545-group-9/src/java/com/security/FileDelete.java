@@ -128,7 +128,7 @@ public class FileDelete extends HttpServlet
                     title + "','" + 
                     "'delete','" + 
                     String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
-            logStmt.executeQuery(logQuery);
+            logStmt.executeUpdate(logQuery);
         }
         catch (Exception e)
         {

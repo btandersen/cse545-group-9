@@ -50,7 +50,7 @@ public class FileUpdate extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         boolean result = false;
-        
+
         String user = request.getRemoteUser();
         String title = null;
 
@@ -61,8 +61,6 @@ public class FileUpdate extends HttpServlet
             Statement docStmt = null;
             Statement ownerStmt = null;
             Statement shareStmt = null;
-
-
 
             String uid = null;
             String did = null;
@@ -168,8 +166,10 @@ public class FileUpdate extends HttpServlet
 
                         ownerRs = ownerStmt.executeQuery(ownerQuery);
                         shareRs = shareStmt.executeQuery(shareQuery);
+                        
+                        boolean shared = shareRs.next();
 
-                        if (uid.equals(ouid) || shareRs.next() || ((Roles.REG_EMP.ordinal() < role) && (ownerRs.getInt("role") <= role) && userDept.contains(docRs.getString("dept"))))
+                        if (uid.equals(ouid) || (shared && shareRs.getString("perm").equals("U")) || ((Roles.REG_EMP.ordinal() < role) && (ownerRs.getInt("role") <= role) && userDept.contains(docRs.getString("dept"))))
                         {
                             try
                             {
@@ -184,7 +184,7 @@ public class FileUpdate extends HttpServlet
                                     psmt.setBinaryStream(6, uploadedStream, (int) sizeInBytes);
 
                                     int s = psmt.executeUpdate();
-                                    
+
                                     result = true;
                                 }
                                 else
@@ -198,6 +198,7 @@ public class FileUpdate extends HttpServlet
                             {
                                 System.out.println(e);
                             }
+
                         }
                     }
                     else
@@ -224,12 +225,12 @@ public class FileUpdate extends HttpServlet
         try
         {
             Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('" + 
-                    user + "','"  + 
-                    title + "','" + 
-                    "'update','" + 
-                    String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
-            logStmt.executeQuery(logQuery);
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
+                    + user + "','"
+                    + title + "','"
+                    + "'update','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+            logStmt.executeUpdate(logQuery);
         }
         catch (Exception e)
         {
