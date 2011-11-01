@@ -49,13 +49,15 @@ public class FileUpload extends HttpServlet
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
+        boolean result = false;
+        String user = request.getRemoteUser();
+        String title = null;
+
         // Check that we have a file upload request
         if (ServletFileUpload.isMultipartContent(request))
         {
 
             Statement stmt = null;
-
-            String user = request.getRemoteUser();
             String uid = null;
             String userDept = null;
             int role = 0;
@@ -88,7 +90,7 @@ public class FileUpload extends HttpServlet
                             // Process the uploaded items
                             Iterator iter = items.iterator();
                             String fieldName = null;
-                            String title = null;
+
                             String auth = null;
                             String dept = null;
                             String filename = null;
@@ -171,6 +173,22 @@ public class FileUpload extends HttpServlet
             {
                 System.err.println(e);
             }
+        }
+
+        // log result
+        try
+        {
+            Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
+                    + user + "','"
+                    + title + "','"
+                    + "'upload','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+            logStmt.executeUpdate(logQuery);
+        }
+        catch (Exception e)
+        {
+            // logging failed
         }
     }
 

@@ -59,41 +59,111 @@ public class FileDownload extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         boolean result = false;
-        
+
         String user = request.getRemoteUser();
-        String title = request.getParameter("filename");
+        String title = request.getParameter("title");
 
         try
         {
-            PreparedStatement psmt = conn.prepareStatement("select * from mydb.table1 where name=?");
-            psmt.setString(1, title);
-            ResultSet rs = psmt.executeQuery();
+            Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+            Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+            Statement ownerStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+            Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-            if (rs.next())
+            ResultSet userRs = null;
+            ResultSet docRs = null;
+            ResultSet ownerRs = null;
+            ResultSet shareRs = null;
+
+            String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                    + " WHERE " + "uname" + " = '" + user + "'";
+
+            String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
+                    + " WHERE " + "title" + " = '" + title + "'";
+            
+            
+
+            userRs = userStmt.executeQuery(userQuery);
+            docRs = docStmt.executeQuery(docQuery);
+
+            if (userRs.next() && docRs.next())
             {
-                Blob b = rs.getBlob("file");
+                int userRole = userRs.getInt("role");
+                String uid = uid = String.valueOf(userRs.getInt("uid")); //userRs.getString("uid");
+                String did = did = String.valueOf(docRs.getInt("did"));
+                String ouid = docRs.getString("ouid");
+                String userDept = userRs.getString("dept");
+                String docDept = docRs.getString("dept");
 
-                if (b != null)
+                String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                        + " WHERE " + "uname" + " = '" + ouid + "'";
+                
+                String shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
+                                + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "U" + "'";
+
+                ownerRs = ownerStmt.executeQuery(ownerQuery);
+                shareRs = shareStmt.executeQuery(shareQuery);
+                
+                boolean shared = shareRs.next();
+
+                if (ownerRs.next())
                 {
-                    InputStream is = b.getBinaryStream();
-                    BufferedInputStream buf = new BufferedInputStream(is);
-                    ServletOutputStream out = response.getOutputStream();
+                    int ownerRole = ownerRs.getInt("role");
 
-                    response.setContentType("application/octet-stream");
-                    response.addHeader("Content-Disposition", "attachment; filename=" + title);
-                    response.setContentLength((int) b.length());
-
-                    int readBytes = 0;
-                    while ((readBytes = buf.read()) != -1)
+                    if (userRole >= Roles.GUEST.ordinal())
                     {
-                        out.write(readBytes);
+                        if ((shared && shareRs.getString("perm").equals("R")) ||
+                                uid.equals(ouid)
+                                || ((userRole > Roles.REG_EMP.ordinal()) && (userRole >= ownerRole) && (userDept.contains(docDept))))
+                        {
+                            Blob b = docRs.getBlob("file");
+
+                            if (b != null)
+                            {
+                                InputStream is = b.getBinaryStream();
+                                BufferedInputStream buf = new BufferedInputStream(is);
+                                ServletOutputStream out = response.getOutputStream();
+
+                                response.setContentType("application/octet-stream");
+                                response.addHeader("Content-Disposition", "attachment; filename=" + title);
+                                response.setContentLength((int) b.length());
+
+                                int readBytes = 0;
+                                while ((readBytes = buf.read()) != -1)
+                                {
+                                    out.write(readBytes);
+                                }
+                                
+                                result = true;
+                            }
+                            else
+                            {
+                                // file was null
+                            }
+                        }
+                        else
+                        {
+                            // not proper permission
+                        }
+                    }
+                    else
+                    {
+                        // user is a guest
                     }
                 }
+                else
+                {
+                    // document owner not in db, should not happen
+                }
+            }
+            else
+            {
+                // user or document not in db
             }
         }
         catch (Exception e)
         {
-            // rollback
+            // SQL error
         }
 
         // log result
@@ -105,12 +175,45 @@ public class FileDownload extends HttpServlet
                     + title + "','"
                     + "'read','"
                     + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
-            logStmt.executeQuery(logQuery);
+            logStmt.executeUpdate(logQuery);
         }
         catch (Exception e)
         {
             // logging failed
         }
+
+//        try
+//        {
+//            PreparedStatement psmt = conn.prepareStatement("select * from mydb.table1 where name=?");
+//            psmt.setString(1, title);
+//            ResultSet rs = psmt.executeQuery();
+//
+//            if (rs.next())
+//            {
+//                Blob b = rs.getBlob("file");
+//
+//                if (b != null)
+//                {
+//                    InputStream is = b.getBinaryStream();
+//                    BufferedInputStream buf = new BufferedInputStream(is);
+//                    ServletOutputStream out = response.getOutputStream();
+//
+//                    response.setContentType("application/octet-stream");
+//                    response.addHeader("Content-Disposition", "attachment; filename=" + title);
+//                    response.setContentLength((int) b.length());
+//
+//                    int readBytes = 0;
+//                    while ((readBytes = buf.read()) != -1)
+//                    {
+//                        out.write(readBytes);
+//                    }
+//                }
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            // rollback
+//        }
     }
 
     /** 

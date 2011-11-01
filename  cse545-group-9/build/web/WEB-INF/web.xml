@@ -36,6 +36,14 @@
         <servlet-name>FileShare</servlet-name>
         <servlet-class>com.security.FileShare</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>FileLock</servlet-name>
+        <servlet-class>com.security.FileLock</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FileUnlock</servlet-name>
+        <servlet-class>com.security.FileUnlock</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -71,6 +79,14 @@
     <servlet-mapping>
         <servlet-name>Logout</servlet-name>
         <url-pattern>/user/Logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileLock</servlet-name>
+        <url-pattern>/user/FileLock</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileUnlock</servlet-name>
+        <url-pattern>/user/FileUnlock</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
