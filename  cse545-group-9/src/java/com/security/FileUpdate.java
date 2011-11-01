@@ -166,39 +166,50 @@ public class FileUpdate extends HttpServlet
 
                         ownerRs = ownerStmt.executeQuery(ownerQuery);
                         shareRs = shareStmt.executeQuery(shareQuery);
-                        
+
                         boolean shared = shareRs.next();
 
-                        if (uid.equals(ouid) || (shared && shareRs.getString("perm").equals("U")) || ((Roles.REG_EMP.ordinal() < role) && (ownerRs.getInt("role") <= role) && userDept.contains(docRs.getString("dept"))))
+                        if (ownerRs.next())
                         {
-                            try
+                            if (uid.equals(ouid) || (shared && shareRs.getString("perm").equals("U")) || ((Roles.REG_EMP.ordinal() < role) && (ownerRs.getInt("role") <= role) && userDept.contains(docRs.getString("dept"))))
                             {
-                                if (userDept.equals(newDept))
+                                try
                                 {
-                                    PreparedStatement psmt = conn.prepareStatement("UPDATE mydb.docs SET title=?,auth=?,dept=?,lastMod=?,filename=?,file=? WHERE did = " + did);
-                                    psmt.setString(1, newTitle);
-                                    psmt.setString(2, newAuth);
-                                    psmt.setString(3, newDept);
-                                    psmt.setString(4, (new Date((new GregorianCalendar()).getTimeInMillis())).toString());
-                                    psmt.setString(5, filename);
-                                    psmt.setBinaryStream(6, uploadedStream, (int) sizeInBytes);
+                                    if (userDept.equals(newDept))
+                                    {
+                                        PreparedStatement psmt = conn.prepareStatement("UPDATE mydb.docs SET title=?,auth=?,dept=?,lastMod=?,filename=?,file=? WHERE did = " + did);
+                                        psmt.setString(1, newTitle);
+                                        psmt.setString(2, newAuth);
+                                        psmt.setString(3, newDept);
+                                        psmt.setString(4, (new Date((new GregorianCalendar()).getTimeInMillis())).toString());
+                                        psmt.setString(5, filename);
+                                        psmt.setBinaryStream(6, uploadedStream, (int) sizeInBytes);
 
-                                    int s = psmt.executeUpdate();
+                                        int s = psmt.executeUpdate();
 
-                                    result = true;
+                                        result = true;
+                                    }
+                                    else
+                                    {
+                                        // wrong dept
+                                    }
+
+                                    uploadedStream.close();
                                 }
-                                else
+                                catch (Exception e)
                                 {
-                                    // wrong dept
+                                    System.out.println(e);
                                 }
 
-                                uploadedStream.close();
                             }
-                            catch (Exception e)
+                            else
                             {
-                                System.out.println(e);
+                                // wrong permissions
                             }
-
+                        }
+                        else
+                        {
+                            // bad doc ouid
                         }
                     }
                     else
