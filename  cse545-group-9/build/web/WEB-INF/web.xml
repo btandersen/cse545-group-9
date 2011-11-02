@@ -44,6 +44,10 @@
         <servlet-name>FileUnlock</servlet-name>
         <servlet-class>com.security.FileUnlock</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>TestLogin</servlet-name>
+        <servlet-class>com.security.TestLogin</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -77,16 +81,21 @@
         <url-pattern>/user/FileShare</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>Logout</servlet-name>
-        <url-pattern>/user/Logout</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>FileLock</servlet-name>
         <url-pattern>/user/FileLock</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>FileUnlock</servlet-name>
         <url-pattern>/user/FileUnlock</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TestLogin</servlet-name>
+        <url-pattern>/TestLogin</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Logout</servlet-name>
+        <url-pattern>/admin/Logout</url-pattern>
+        <url-pattern>/user/Logout</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
@@ -119,6 +128,7 @@
     </security-constraint>
     <login-config>
         <auth-method>FORM</auth-method>
+        <realm-name>MyJDBC</realm-name>
         <form-login-config>
             <form-login-page>/login.jsp</form-login-page>
             <form-error-page>/loginerror.jsp</form-error-page>
