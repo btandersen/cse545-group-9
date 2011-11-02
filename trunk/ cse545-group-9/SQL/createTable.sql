@@ -120,6 +120,24 @@ CREATE  TABLE IF NOT EXISTS `mydb`.`Log` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `mydb`.`groups`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`groups` ;
+
+CREATE  TABLE IF NOT EXISTS `mydb`.`groups` (
+  `groupid` VARCHAR(20) NOT NULL ,
+  `uname` VARCHAR(45) NULL DEFAULT NULL ,
+  PRIMARY KEY (`groupid`) ,
+  INDEX `FK_UNAME` (`uname` ASC) ,
+  CONSTRAINT `FK_UNAME`
+    FOREIGN KEY (`uname` )
+    REFERENCES `mydb`.`Users` (`uname` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
