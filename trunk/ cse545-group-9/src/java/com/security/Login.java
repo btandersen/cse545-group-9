@@ -80,7 +80,18 @@ public class Login extends HttpServlet
                         request.login(user, pass);
                         rs.updateInt("attempts", 0);
                         rs.updateRow();
-                        response.sendRedirect("user/user.jsp");
+                        if (request.isUserInRole("user"))
+                        {
+                            response.sendRedirect("user/user.jsp");
+                        }
+                        else if (request.isUserInRole("admin"))
+                        {
+                            response.sendRedirect("admin/admin.jsp");
+                        }
+                        else
+                        {
+                            response.sendRedirect("guest.jsp");
+                        }
                     }
                     catch (Exception e)
                     {

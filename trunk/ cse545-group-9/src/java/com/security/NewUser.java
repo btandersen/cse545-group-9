@@ -65,7 +65,7 @@ public class NewUser extends HttpServlet
         {
             //open connection to db
             Statement stmt = conn.createStatement();
-            query = "INSERT INTO mydb.users (`uname`) VALUES ('" + uname + "')";
+            query = "INSERT INTO mydb.users (uname,role,dept,pwd) VALUES ('" + uname + "',0,'TEMP',md5('" + pwd + "'))";
             stmt.executeUpdate(query); //execute (insert the row)
             stmt.close(); //close the statement
         }
