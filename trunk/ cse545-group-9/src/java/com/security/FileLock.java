@@ -6,6 +6,7 @@ package com.security;
 
 import java.io.IOException;
 
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,9 @@ public class FileLock extends HttpServlet
     {
         boolean result = false;
 
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
 
@@ -94,11 +98,30 @@ public class FileLock extends HttpServlet
                 ownerRs = ownerStmt.executeQuery(ownerQuery);
                 shareRs = shareStmt.executeQuery(shareQuery);
 
-                boolean shared = shareRs.next();
+                int ownerRole = 0;
 
                 if (ownerRs.next())
                 {
-                    if (uid.equals(ouid) || (shared && shareRs.getString("perm").equals("L")) || ((Roles.REG_EMP.ordinal() < role) && (ownerRs.getInt("role") <= role) && userDept.contains(docRs.getString("dept"))))
+                    ownerRole = ownerRs.getInt("role");
+                }
+
+                boolean shared = false;
+                boolean lockPerm = false;
+
+                if (shareRs.next())
+                {
+                    shared = true;
+                    lockPerm = shareRs.getString("perm").equals("L");
+                }
+
+                boolean userIsOwner = uid.equals(ouid);
+                boolean userIsManager = (role > Roles.REG_EMP.ordinal());
+                boolean userMeetsRoleReq = (role >= ownerRole);
+                boolean userMeetsDeptReq = (userDept.contains(docDept));
+
+                if (ownerRs.next())
+                {
+                    if (userIsOwner || (shared && lockPerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
                     {
                         try
                         {
@@ -113,27 +136,72 @@ public class FileLock extends HttpServlet
                         catch (Exception e)
                         {
                             // already locked
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Lock</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>File is already locked...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;user.jsp");
                         }
                     }
                     else
                     {
                         // bad permission
+                        out.println("<html>");
+                        out.println("<head>");
+                        out.println("<title>File Lock</title>");
+                        out.println("</head>");
+                        out.println("<body>");
+                        out.println("<h1>You do not have permission to lock this file...</h1>");
+                        out.println("</body>");
+                        out.println("</html>");
+                        response.setHeader("Refresh", "5;user.jsp");
                     }
                 }
                 else
                 {
                     // bad doc ouid
+                    out.println("<html>");
+                    out.println("<head>");
+                    out.println("<title>File Lock</title>");
+                    out.println("</head>");
+                    out.println("<body>");
+                    out.println("<h1>Invalid document owner...</h1>");
+                    out.println("</body>");
+                    out.println("</html>");
+                    response.setHeader("Refresh", "5;user.jsp");
                 }
 
             }
             else
             {
                 // bad user or doc
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>File Lock</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>Invalid user or document...</h1>");
+                out.println("</body>");
+                out.println("</html>");
+                response.setHeader("Refresh", "5;user.jsp");
             }
         }
         catch (Exception e)
         {
             // SQL error
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>File Lock</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Error attempting to lock file...</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            response.setHeader("Refresh", "5;user.jsp");
         }
 
         // log result

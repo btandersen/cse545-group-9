@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import java.io.InputStream;
 
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -60,6 +61,9 @@ public class FileDownload extends HttpServlet
     {
         boolean result = false;
 
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
 
@@ -104,17 +108,27 @@ public class FileDownload extends HttpServlet
                 ownerRs = ownerStmt.executeQuery(ownerQuery);
                 shareRs = shareStmt.executeQuery(shareQuery);
 
-                boolean shared = shareRs.next();
-
                 if (ownerRs.next())
                 {
                     int ownerRole = ownerRs.getInt("role");
 
+                    boolean shared = false;
+                    boolean readPerm = false;
+
+                    if (shareRs.next())
+                    {
+                        shared = true;
+                        readPerm = shareRs.getString("perm").equals("R");
+                    }
+
+                    boolean userIsOwner = uid.equals(ouid);
+                    boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
+                    boolean userMeetsRoleReq = (userRole >= ownerRole);
+                    boolean userMeetsDeptReq = (userDept.contains(docDept));
+
                     if (userRole >= Roles.GUEST.ordinal())
                     {
-                        if ((shared && shareRs.getString("perm").equals("R"))
-                                || uid.equals(ouid)
-                                || ((userRole > Roles.REG_EMP.ordinal()) && (userRole >= ownerRole) && (userDept.contains(docDept))))
+                        if (userIsOwner || (shared && readPerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
                         {
                             Blob b = docRs.getBlob("file");
 
@@ -122,7 +136,7 @@ public class FileDownload extends HttpServlet
                             {
                                 InputStream is = b.getBinaryStream();
                                 BufferedInputStream buf = new BufferedInputStream(is);
-                                ServletOutputStream out = response.getOutputStream();
+                                ServletOutputStream fileOut = response.getOutputStream();
 
                                 response.setContentType("application/octet-stream");
                                 response.addHeader("Content-Disposition", "attachment; filename=" + title);
@@ -131,39 +145,103 @@ public class FileDownload extends HttpServlet
                                 int readBytes = 0;
                                 while ((readBytes = buf.read()) != -1)
                                 {
-                                    out.write(readBytes);
+                                    fileOut.write(readBytes);
                                 }
 
                                 result = true;
+
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>File Download</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>File download (read) successful...</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;user.jsp");
                             }
                             else
                             {
                                 // file was null
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>File Download</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>Invalid file (file was empty)...</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;user.jsp");
                             }
                         }
                         else
                         {
                             // not proper permission
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Download</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>You do not have proper permission to download...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;user.jsp");
                         }
                     }
                     else
                     {
-                        // user is a guest
+                        // user is a not at least a guest
+                        out.println("<html>");
+                        out.println("<head>");
+                        out.println("<title>File Download</title>");
+                        out.println("</head>");
+                        out.println("<body>");
+                        out.println("<h1>You do not have proper permission to download (not at least a guest user)...</h1>");
+                        out.println("</body>");
+                        out.println("</html>");
+                        response.setHeader("Refresh", "5;user.jsp");
                     }
                 }
                 else
                 {
                     // document owner not in db, should not happen
+                    out.println("<html>");
+                    out.println("<head>");
+                    out.println("<title>File Download</title>");
+                    out.println("</head>");
+                    out.println("<body>");
+                    out.println("<h1>Invalid document owner...</h1>");
+                    out.println("</body>");
+                    out.println("</html>");
+                    response.setHeader("Refresh", "5;user.jsp");
                 }
             }
             else
             {
                 // user or document not in db
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>File Download</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>Invalid user or document...</h1>");
+                out.println("</body>");
+                out.println("</html>");
+                response.setHeader("Refresh", "5;user.jsp");
             }
         }
         catch (Exception e)
         {
             // SQL error
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>File Download</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Error attempting to download...</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            response.setHeader("Refresh", "5;user.jsp");
         }
 
         // log result
@@ -181,39 +259,6 @@ public class FileDownload extends HttpServlet
         {
             // logging failed
         }
-
-//        try
-//        {
-//            PreparedStatement psmt = conn.prepareStatement("select * from mydb.table1 where name=?");
-//            psmt.setString(1, title);
-//            ResultSet rs = psmt.executeQuery();
-//
-//            if (rs.next())
-//            {
-//                Blob b = rs.getBlob("file");
-//
-//                if (b != null)
-//                {
-//                    InputStream is = b.getBinaryStream();
-//                    BufferedInputStream buf = new BufferedInputStream(is);
-//                    ServletOutputStream out = response.getOutputStream();
-//
-//                    response.setContentType("application/octet-stream");
-//                    response.addHeader("Content-Disposition", "attachment; filename=" + title);
-//                    response.setContentLength((int) b.length());
-//
-//                    int readBytes = 0;
-//                    while ((readBytes = buf.read()) != -1)
-//                    {
-//                        out.write(readBytes);
-//                    }
-//                }
-//            }
-//        }
-//        catch (Exception e)
-//        {
-//            // rollback
-//        }
     }
 
     /** 
