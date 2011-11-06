@@ -1,0 +1,1 @@
+insert into mydb.users (uname,role,dept,pwd) values ('bob',2,'HR',md5('password'))

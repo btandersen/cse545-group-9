@@ -2,6 +2,7 @@ package com.security;
 
 import java.io.IOException;
 
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,8 +19,6 @@ public class FileDelete extends HttpServlet
     InitialContext ctx;
     DataSource ds;
     Connection conn;
-    Statement stmt;
-    ResultSet rs;
 
     @Override
     public void init()
@@ -46,6 +45,9 @@ public class FileDelete extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         boolean result = false;
+
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
 
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
@@ -118,31 +120,85 @@ public class FileDelete extends HttpServlet
                             else
                             {
                                 // locked by someone else
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>File Delete</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>File is locked by another user...</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;user.jsp");
                             }
                         }
                         else
                         {
                             // not proper permission
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Delete</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>You do not have permission to delete this file...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;user.jsp");
                         }
                     }
                     else
                     {
                         // user is a guest
+                        out.println("<html>");
+                        out.println("<head>");
+                        out.println("<title>File Delete</title>");
+                        out.println("</head>");
+                        out.println("<body>");
+                        out.println("<h1>Guest cannot delete files...</h1>");
+                        out.println("</body>");
+                        out.println("</html>");
+                        response.setHeader("Refresh", "5;user.jsp");
                     }
                 }
                 else
                 {
                     // document owner not in db, should not happen
+                    out.println("<html>");
+                    out.println("<head>");
+                    out.println("<title>File Delete</title>");
+                    out.println("</head>");
+                    out.println("<body>");
+                    out.println("<h1>Invalid document owner...</h1>");
+                    out.println("</body>");
+                    out.println("</html>");
+                    response.setHeader("Refresh", "5;user.jsp");
                 }
             }
             else
             {
                 // user or document not in db
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>File Delete</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>Invalid user or document...</h1>");
+                out.println("</body>");
+                out.println("</html>");
+                response.setHeader("Refresh", "5;user.jsp");
             }
         }
         catch (Exception e)
         {
             // SQL error
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>File Delete</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Error attempting to delete file...</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            response.setHeader("Refresh", "5;user.jsp");
         }
 
         // log result

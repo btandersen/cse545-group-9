@@ -2,6 +2,7 @@ package com.security;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import java.sql.*;
 import java.util.GregorianCalendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.sql.*;
 import javax.naming.*;
 
@@ -49,14 +52,18 @@ public class FileUpload extends HttpServlet
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
+        String deptSet = "HR,LS,IT,SP,RD,FN";
+
         boolean result = false;
         String user = request.getRemoteUser();
         String title = null;
 
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
         // Check that we have a file upload request
         if (ServletFileUpload.isMultipartContent(request))
         {
-
             Statement stmt = null;
             String uid = null;
             String userDept = null;
@@ -136,42 +143,162 @@ public class FileUpload extends HttpServlet
                                 }
                             }
 
-                            if (userDept.contains(dept))
-                            {
-                                PreparedStatement psmt = conn.prepareStatement("insert into mydb.docs(title,auth,dept,ouid,created,filename,file)" + "values(?,?,?,?,?,?,?)");
-                                psmt.setString(1, title);
-                                psmt.setString(2, auth);
-                                psmt.setString(3, dept);
-                                psmt.setString(4, uid);
-                                psmt.setString(5, (new Timestamp((new GregorianCalendar()).getTimeInMillis())).toString());
-                                psmt.setString(6, filename);
-                                psmt.setBinaryStream(7, uploadedStream, (int) sizeInBytes);
+                            String regex = "[\\w]+{1,45}";
+                            Pattern p = Pattern.compile(regex);
 
-                                int s = psmt.executeUpdate();
+                            Matcher m = p.matcher(title);
+
+                            if ((title != null) && !(title.isEmpty()) && m.matches())
+                            {
+                                m = p.matcher(auth);
+
+                                if ((auth != null) && !(auth.isEmpty()) && m.matches())
+                                {
+                                    regex = "(([_-\\w]+)\\.([a-zA-Z]+{1,4})){1,45}";
+                                    p = Pattern.compile(regex);
+                                    m = p.matcher(filename);
+
+                                    if ((filename != null) && !(filename.isEmpty()) && m.matches())
+                                    {
+                                        if ((dept != null) && !(dept.isEmpty()) && deptSet.contains(dept))
+                                        {
+                                            if (userDept.contains(dept))
+                                            {
+                                                PreparedStatement psmt = conn.prepareStatement("insert into mydb.docs(title,auth,dept,ouid,created,filename,file)" + "values(?,?,?,?,?,?,?)");
+                                                psmt.setString(1, title);
+                                                psmt.setString(2, auth);
+                                                psmt.setString(3, dept);
+                                                psmt.setString(4, uid);
+                                                psmt.setString(5, (new Timestamp((new GregorianCalendar()).getTimeInMillis())).toString());
+                                                psmt.setString(6, filename);
+                                                psmt.setBinaryStream(7, uploadedStream, (int) sizeInBytes);
+
+                                                int s = psmt.executeUpdate();
+                                                result = true;
+
+                                                out.println("<html>");
+                                                out.println("<head>");
+                                                out.println("<title>File Upload</title>");
+                                                out.println("</head>");
+                                                out.println("<body>");
+                                                out.println("<h1>File uploaded...</h1>");
+                                                out.println("</body>");
+                                                out.println("</html>");
+                                                response.setHeader("Refresh", "5;user.jsp");
+                                            }
+                                            else
+                                            {
+                                                // wrong dept
+                                                out.println("<html>");
+                                                out.println("<head>");
+                                                out.println("<title>File Upload</title>");
+                                                out.println("</head>");
+                                                out.println("<body>");
+                                                out.println("<h1>You selected a wrong department...</h1>");
+                                                out.println("</body>");
+                                                out.println("</html>");
+                                                response.setHeader("Refresh", "5;user.jsp");
+                                            }
+
+                                            uploadedStream.close();
+                                        }
+                                        else
+                                        {
+                                            // bad dept
+                                            out.println("<html>");
+                                            out.println("<head>");
+                                            out.println("<title>File Upload</title>");
+                                            out.println("</head>");
+                                            out.println("<body>");
+                                            out.println("<h1>You selected an invalid department...</h1>");
+                                            out.println("</body>");
+                                            out.println("</html>");
+                                            response.setHeader("Refresh", "5;user.jsp");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // bad filename
+                                        out.println("<html>");
+                                        out.println("<head>");
+                                        out.println("<title>File Upload</title>");
+                                        out.println("</head>");
+                                        out.println("<body>");
+                                        out.println("<h1>You selected an invalid filename...</h1>");
+                                        out.println("</body>");
+                                        out.println("</html>");
+                                        response.setHeader("Refresh", "5;user.jsp");
+                                    }
+                                }
+                                else
+                                {
+                                    // bad author
+                                    out.println("<html>");
+                                    out.println("<head>");
+                                    out.println("<title>File Upload</title>");
+                                    out.println("</head>");
+                                    out.println("<body>");
+                                    out.println("<h1>You selected an invalid autor name...</h1>");
+                                    out.println("</body>");
+                                    out.println("</html>");
+                                    response.setHeader("Refresh", "5;user.jsp");
+                                }
                             }
                             else
                             {
-                                // wrong dept
+                                // bad title
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>File Upload</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>You selected an invalid title...</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;user.jsp");
                             }
-
-                            uploadedStream.close();
                         }
                         catch (Exception e)
                         {
-                            System.out.println(e);
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Upload</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>Error encountered uploading file...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;user.jsp");
                         }
                     }
                 }
                 else
                 {
                     // user not in db
+                    out.println("<html>");
+                    out.println("<head>");
+                    out.println("<title>File Upload</title>");
+                    out.println("</head>");
+                    out.println("<body>");
+                    out.println("<h1>You are not a valid user...</h1>");
+                    out.println("</body>");
+                    out.println("</html>");
+                    response.setHeader("Refresh", "5;user.jsp");
                 }
 
                 stmt.close();
             }
             catch (Exception e)
             {
-                System.err.println(e);
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>File Upload</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>Error encountered uploading file...</h1>");
+                out.println("</body>");
+                out.println("</html>");
+                response.setHeader("Refresh", "5;user.jsp");
             }
         }
 

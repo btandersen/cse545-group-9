@@ -6,6 +6,7 @@ package com.security;
 
 import java.io.IOException;
 
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -51,70 +52,138 @@ public class FileShare extends HttpServlet
     {
         boolean result = false;
 
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
+        String permSet = "R,U,L";
+
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
         String shareUser = request.getParameter("shareuser");
         String perm = request.getParameter("perm");
 
-        try
+        if (permSet.contains(perm))
         {
-            Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement shareUserStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-
-            ResultSet userRs = null;
-            ResultSet docRs = null;
-            ResultSet shareUserRs = null;
-
-            String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                    + " WHERE " + "uname" + " = '" + user + "'";
-
-            String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
-                    + " WHERE " + "title" + " = '" + title + "'";
-
-            String shareUserQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                    + " WHERE " + "uname" + " = '" + shareUser + "'";
-
-            userRs = userStmt.executeQuery(userQuery);
-            docRs = docStmt.executeQuery(docQuery);
-            shareUserRs = shareUserStmt.executeQuery(shareUserQuery);
-
-            if (userRs.next())
+            try
             {
-                if (docRs.next())
+                Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement shareUserStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+
+                ResultSet userRs = null;
+                ResultSet docRs = null;
+                ResultSet shareUserRs = null;
+
+                String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                        + " WHERE " + "uname" + " = '" + user + "'";
+
+                String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
+                        + " WHERE " + "title" + " = '" + title + "'";
+
+                String shareUserQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                        + " WHERE " + "uname" + " = '" + shareUser + "'";
+
+                userRs = userStmt.executeQuery(userQuery);
+                docRs = docStmt.executeQuery(docQuery);
+                shareUserRs = shareUserStmt.executeQuery(shareUserQuery);
+
+                if (userRs.next())
                 {
-                    if (shareUserRs.next())
+                    if (docRs.next())
                     {
-                        String suid = String.valueOf(shareUserRs.getInt("uid"));
-                        String sdid = String.valueOf(docRs.getInt("did"));
+                        if ((userRs.getInt("uid") == docRs.getInt("ouid")) && shareUserRs.next())
+                        {
+                            String suid = String.valueOf(shareUserRs.getInt("uid"));
+                            String sdid = String.valueOf(docRs.getInt("did"));
 
-                        Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                            Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-                        String shareQuery = "INSERT INTO mydb.Shared (sdid,suid,perm) VALUES ('"
-                                + sdid + "','"
-                                + suid + "','"
-                                + perm + "','";
+                            String shareQuery = "INSERT INTO mydb.Shared (sdid,suid,perm) VALUES ('"
+                                    + sdid + "','"
+                                    + suid + "','"
+                                    + perm + "','";
 
-                        shareStmt.executeUpdate(shareQuery);
+                            shareStmt.executeUpdate(shareQuery);
+                            result = true;
+
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Share</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>File shared...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;user.jsp");
+                        }
+                        else
+                        {
+                            // bad shareUser
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Share</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>Invalid user to share with...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;user.jsp");
+                        }
                     }
                     else
                     {
-                        // bad shareUser
+                        // bad doc
+                        out.println("<html>");
+                        out.println("<head>");
+                        out.println("<title>File Share</title>");
+                        out.println("</head>");
+                        out.println("<body>");
+                        out.println("<h1>Invalid document...</h1>");
+                        out.println("</body>");
+                        out.println("</html>");
+                        response.setHeader("Refresh", "5;user.jsp");
                     }
                 }
                 else
                 {
-                    // bad doc
+                    // bad user
+                    out.println("<html>");
+                    out.println("<head>");
+                    out.println("<title>File Share</title>");
+                    out.println("</head>");
+                    out.println("<body>");
+                    out.println("<h1>Invalid user...</h1>");
+                    out.println("</body>");
+                    out.println("</html>");
+                    response.setHeader("Refresh", "5;user.jsp");
                 }
             }
-            else
+            catch (Exception e)
             {
-                // bad user
+                // SQL error
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>File Share</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>Error sharing file...</h1>");
+                out.println("</body>");
+                out.println("</html>");
+                response.setHeader("Refresh", "5;user.jsp");
             }
         }
-        catch (Exception e)
+        else
         {
-            // SQL error
+            // bad permission
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>File Share</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Invalid permission request...</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            response.setHeader("Refresh", "5;user.jsp");
         }
 
         // log result
