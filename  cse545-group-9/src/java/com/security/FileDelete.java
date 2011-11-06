@@ -55,10 +55,12 @@ public class FileDelete extends HttpServlet
             Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
             Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
             Statement ownerStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+            Statement lockStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
             ResultSet userRs = null;
             ResultSet docRs = null;
             ResultSet ownerRs = null;
+            ResultSet lockRs = null;
 
             String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
                     + " WHERE " + "uname" + " = '" + user + "'";
@@ -73,26 +75,50 @@ public class FileDelete extends HttpServlet
             {
                 int userRole = userRs.getInt("role");
                 String uid = userRs.getString("uid");
+                String did = docRs.getString("did");
                 String ouid = docRs.getString("ouid");
                 String userDept = userRs.getString("dept");
                 String docDept = docRs.getString("dept");
 
                 String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                        + " WHERE " + "uname" + " = '" + ouid + "'";
+                        + " WHERE " + "uname" + " = " + ouid + "";
+
+                String lockQuery = "SELECT * FROM " + "mydb" + "." + "Locked"
+                        + " WHERE " + "ldid" + " = " + did + "";
 
                 ownerRs = ownerStmt.executeQuery(ownerQuery);
+                lockRs = lockStmt.executeQuery(lockQuery);
 
                 if (ownerRs.next())
                 {
                     int ownerRole = ownerRs.getInt("role");
 
+                    boolean userIsOwner = uid.equals(ouid);
+                    boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
+                    boolean userMeetsRoleReq = (userRole >= ownerRole);
+                    boolean userMeetsDeptReq = (userDept.contains(docDept));
+                    boolean locked = false;
+                    boolean userHasLock = false;
+
+                    if (lockRs.next())
+                    {
+                        locked = true;
+                        userHasLock = uid.equals(String.valueOf(lockRs.getInt("luid")));
+                    }
+
                     if (userRole > Roles.GUEST.ordinal())
                     {
-                        if (uid.equals(ouid)
-                                || ((userRole > Roles.REG_EMP.ordinal()) && (userRole >= ownerRole) && (userDept.contains(docDept))))
+                        if (userIsOwner || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
                         {
-                            docRs.deleteRow();
-                            result = true;
+                            if (!locked || (locked && userHasLock))
+                            {
+                                docRs.deleteRow();
+                                result = true;
+                            }
+                            else
+                            {
+                                // locked by someone else
+                            }
                         }
                         else
                         {

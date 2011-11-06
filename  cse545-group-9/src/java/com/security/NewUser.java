@@ -14,6 +14,8 @@ import java.sql.*;
 import javax.sql.*;
 import javax.naming.*;
 
+import java.util.regex.*;
+
 /**
  *
  * @author Administrator
@@ -50,6 +52,12 @@ public class NewUser extends HttpServlet
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
+        final String UNAME_REGEX = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,20})";
+        final String FNAME_REGEX = "[a-zA-Z]";
+        final String LNAME_REGEX = "[a-zA-Z]";
+        final String EMAIL_REGEX = "[0-9a-zA-Z]@[0-9a-zA-Z].[a-z]";
+        final String PWD_REGEX = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20})";
+        
         String uname = request.getParameter("uname");
         String fname = request.getParameter("fname");
         String lname = request.getParameter("lname");
@@ -65,7 +73,11 @@ public class NewUser extends HttpServlet
         {
             //open connection to db
             Statement stmt = conn.createStatement();
-            query = "INSERT INTO mydb.users (uname,role,dept,pwd) VALUES ('" + uname + "',0,'TEMP',md5('" + pwd + "'))";
+            query = "INSERT INTO mydb.users (uname,fname,lname,email,role,dept,pwd) VALUES ('"
+                    + uname + "','"
+                    + fname + "','"
+                    + lname + "','"
+                    + email + "',0,'TEMP',md5('" + pwd + "'))";
             stmt.executeUpdate(query); //execute (insert the row)
             stmt.close(); //close the statement
         }
