@@ -13,11 +13,15 @@
     </head>
     <body>
         <h1>Web Document Management System</h1>
+        <h2>Login</h2>
         <p>
-            <a href="login.jsp">Login</a>
+            Please enter your username and password to access the application...
         </p>
+        <%@include file="WEB-INF/jspf/loginform.jspf" %>
+        <h2>Create New User Request</h2>
         <p>
-            <a href="newuser.jsp">Create New User</a>
+            Please enter your username and password to access the application...
         </p>
+        <%@include file="WEB-INF/jspf/newuserform.jspf" %>
     </body>
 </html>

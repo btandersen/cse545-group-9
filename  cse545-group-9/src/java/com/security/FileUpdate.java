@@ -203,7 +203,7 @@ public class FileUpdate extends HttpServlet
                         }
 
                         ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                                + " WHERE " + "uname" + " = '" + ouid + "'";
+                                + " WHERE " + "uid" + " = " + ouid + "";
 
                         shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
                                 + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "U" + "'";
@@ -386,13 +386,15 @@ public class FileUpdate extends HttpServlet
             String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
                     + user + "','"
                     + title + "','"
-                    + "'update','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+                    + "update','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
             logStmt.executeUpdate(logQuery);
+            logStmt.close();
         }
         catch (Exception e)
         {
             // logging failed
+            e.printStackTrace();
         }
     }
 

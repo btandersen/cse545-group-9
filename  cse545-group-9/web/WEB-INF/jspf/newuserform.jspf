@@ -32,6 +32,12 @@
                 </td>
             </tr>
             <tr>
+                <td align="right">Re-enter Password:&nbsp;</td>
+                <td>
+                    <input type="password" name="pwd1" />
+                </td>
+            </tr>
+            <tr>
                 <td></td>
                 <td><input type="submit" value="Submit Request" /></td>
             </tr>

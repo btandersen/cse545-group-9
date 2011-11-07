@@ -83,7 +83,7 @@ public class FileDelete extends HttpServlet
                 String docDept = docRs.getString("dept");
 
                 String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                        + " WHERE " + "uname" + " = " + ouid + "";
+                        + " WHERE " + "uid" + " = " + ouid + "";
 
                 String lockQuery = "SELECT * FROM " + "mydb" + "." + "Locked"
                         + " WHERE " + "ldid" + " = " + did + "";
@@ -208,13 +208,15 @@ public class FileDelete extends HttpServlet
             String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
                     + user + "','"
                     + title + "','"
-                    + "'delete','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+                    + "delete','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
             logStmt.executeUpdate(logQuery);
+            logStmt.close();
         }
         catch (Exception e)
         {
             // logging failed
+            e.printStackTrace();
         }
     }
 

@@ -90,10 +90,10 @@ public class FileLock extends HttpServlet
                 String ouid = String.valueOf(docRs.getInt("ouid"));
 
                 String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                        + " WHERE " + "uname" + " = '" + ouid + "'";
+                        + " WHERE " + "uid" + " = " + ouid + "";
 
                 String shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
-                        + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "U" + "'";
+                        + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "L" + "'";
 
                 ownerRs = ownerStmt.executeQuery(ownerQuery);
                 shareRs = shareStmt.executeQuery(shareQuery);
@@ -211,13 +211,15 @@ public class FileLock extends HttpServlet
             String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
                     + user + "','"
                     + title + "','"
-                    + "'locked','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+                    + "locked','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
             logStmt.executeUpdate(logQuery);
+            logStmt.close();
         }
         catch (Exception e)
         {
             // logging failed
+            e.printStackTrace();
         }
     }
 

@@ -61,8 +61,9 @@ public class FileDownload extends HttpServlet
     {
         boolean result = false;
 
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
+        //response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = null; //response.getWriter();
+        ServletOutputStream fileOut = null;
 
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
@@ -98,12 +99,13 @@ public class FileDownload extends HttpServlet
                 String ouid = docRs.getString("ouid");
                 String userDept = userRs.getString("dept");
                 String docDept = docRs.getString("dept");
+                String filename = docRs.getString("filename");
 
                 String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                        + " WHERE " + "uname" + " = '" + ouid + "'";
+                        + " WHERE " + "uid" + " = " + ouid + "";
 
                 String shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
-                        + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "U" + "'";
+                        + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "R" + "'";
 
                 ownerRs = ownerStmt.executeQuery(ownerQuery);
                 shareRs = shareStmt.executeQuery(shareQuery);
@@ -136,10 +138,11 @@ public class FileDownload extends HttpServlet
                             {
                                 InputStream is = b.getBinaryStream();
                                 BufferedInputStream buf = new BufferedInputStream(is);
-                                ServletOutputStream fileOut = response.getOutputStream();
+                                //ServletOutputStream
+                                fileOut = response.getOutputStream();
 
                                 response.setContentType("application/octet-stream");
-                                response.addHeader("Content-Disposition", "attachment; filename=" + title);
+                                response.addHeader("Content-Disposition", "attachment; filename=" + filename);
                                 response.setContentLength((int) b.length());
 
                                 int readBytes = 0;
@@ -149,20 +152,12 @@ public class FileDownload extends HttpServlet
                                 }
 
                                 result = true;
-
-                                out.println("<html>");
-                                out.println("<head>");
-                                out.println("<title>File Download</title>");
-                                out.println("</head>");
-                                out.println("<body>");
-                                out.println("<h1>File download (read) successful...</h1>");
-                                out.println("</body>");
-                                out.println("</html>");
-                                response.setHeader("Refresh", "5;user.jsp");
                             }
                             else
                             {
-                                // file was null
+                                // file was null                                
+                                response.setContentType("text/html;charset=UTF-8");
+                                out = response.getWriter();
                                 out.println("<html>");
                                 out.println("<head>");
                                 out.println("<title>File Download</title>");
@@ -177,6 +172,8 @@ public class FileDownload extends HttpServlet
                         else
                         {
                             // not proper permission
+                            response.setContentType("text/html;charset=UTF-8");
+                            out = response.getWriter();
                             out.println("<html>");
                             out.println("<head>");
                             out.println("<title>File Download</title>");
@@ -191,6 +188,8 @@ public class FileDownload extends HttpServlet
                     else
                     {
                         // user is a not at least a guest
+                        response.setContentType("text/html;charset=UTF-8");
+                        out = response.getWriter();
                         out.println("<html>");
                         out.println("<head>");
                         out.println("<title>File Download</title>");
@@ -205,6 +204,8 @@ public class FileDownload extends HttpServlet
                 else
                 {
                     // document owner not in db, should not happen
+                    response.setContentType("text/html;charset=UTF-8");
+                    out = response.getWriter();
                     out.println("<html>");
                     out.println("<head>");
                     out.println("<title>File Download</title>");
@@ -219,6 +220,8 @@ public class FileDownload extends HttpServlet
             else
             {
                 // user or document not in db
+                response.setContentType("text/html;charset=UTF-8");
+                out = response.getWriter();
                 out.println("<html>");
                 out.println("<head>");
                 out.println("<title>File Download</title>");
@@ -233,6 +236,8 @@ public class FileDownload extends HttpServlet
         catch (Exception e)
         {
             // SQL error
+            response.setContentType("text/html;charset=UTF-8");
+            out = response.getWriter();
             out.println("<html>");
             out.println("<head>");
             out.println("<title>File Download</title>");
@@ -251,13 +256,15 @@ public class FileDownload extends HttpServlet
             String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
                     + user + "','"
                     + title + "','"
-                    + "'read','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+                    + "read','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
             logStmt.executeUpdate(logQuery);
+            logStmt.close();
         }
         catch (Exception e)
         {
             // logging failed
+            e.printStackTrace();
         }
     }
 
@@ -273,15 +280,5 @@ public class FileDownload extends HttpServlet
             throws ServletException, IOException
     {
         processRequest(request, response);
-    }
-
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo()
-    {
-        return "Short description";
     }
 }
