@@ -75,6 +75,7 @@ public class NewUser extends HttpServlet
         String lname = request.getParameter("lname");
         String email = request.getParameter("email");
         String pwd = request.getParameter("pwd");
+        String pwd1 = request.getParameter("pwd1");
 
         unameMatcher = unamePattern.matcher(uname);
         fnameMatcher = fnamePattern.matcher(fname);
@@ -97,7 +98,7 @@ public class NewUser extends HttpServlet
             {
                 if (emailMatch)
                 {
-                    if (pwdMatch)
+                    if (pwdMatch && pwd.equals(pwd1))
                     {
                         String query = "";
 

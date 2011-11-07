@@ -143,22 +143,23 @@ public class FileUpload extends HttpServlet
                                 }
                             }
 
-                            String regex = "[\\w]+{1,45}";
-                            Pattern p = Pattern.compile(regex);
+                            String titleRegex = "[\\w]{1,45}+";
+                            String authRegex = "[\\w]{1,45}+";
+                            String fileNameRegex = "([\\w\\_-]+\\.([a-zA-Z]{1,4}+)){1,45}";
 
-                            Matcher m = p.matcher(title);
+                            Pattern titlePattern = Pattern.compile(titleRegex);
+                            Pattern authPattern = Pattern.compile(authRegex);
+                            Pattern filenamePattern = Pattern.compile(fileNameRegex);
 
-                            if ((title != null) && !(title.isEmpty()) && m.matches())
+                            Matcher titleMatcher = titlePattern.matcher(title);
+                            Matcher authMatcher = authPattern.matcher(auth);
+                            Matcher filenameMatcher = filenamePattern.matcher(filename);
+
+                            if ((title != null) && !(title.isEmpty()) && titleMatcher.matches())
                             {
-                                m = p.matcher(auth);
-
-                                if ((auth != null) && !(auth.isEmpty()) && m.matches())
+                                if ((auth != null) && !(auth.isEmpty()) && authMatcher.matches())
                                 {
-                                    regex = "(([_-\\w]+)\\.([a-zA-Z]+{1,4})){1,45}";
-                                    p = Pattern.compile(regex);
-                                    m = p.matcher(filename);
-
-                                    if ((filename != null) && !(filename.isEmpty()) && m.matches())
+                                    if ((filename != null) && !(filename.isEmpty()) && filenameMatcher.matches())
                                     {
                                         if ((dept != null) && !(dept.isEmpty()) && deptSet.contains(dept))
                                         {
@@ -309,13 +310,15 @@ public class FileUpload extends HttpServlet
             String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
                     + user + "','"
                     + title + "','"
-                    + "'upload','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+                    + "upload','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
             logStmt.executeUpdate(logQuery);
+            logStmt.close();
         }
         catch (Exception e)
         {
             // logging failed
+            e.printStackTrace();
         }
     }
 

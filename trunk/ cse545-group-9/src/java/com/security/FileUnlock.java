@@ -119,13 +119,15 @@ public class FileUnlock extends HttpServlet
             String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
                     + user + "','"
                     + title + "','"
-                    + "'unlocked','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+                    + "unlocked','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
             logStmt.executeUpdate(logQuery);
+            logStmt.close();
         }
         catch (Exception e)
         {
             // logging failed
+            e.printStackTrace();
         }
     }
 

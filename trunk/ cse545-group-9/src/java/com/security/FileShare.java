@@ -193,13 +193,15 @@ public class FileShare extends HttpServlet
             String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
                     + user + "','"
                     + title + "','"
-                    + "'shared','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "'";
+                    + "shared','"
+                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
             logStmt.executeUpdate(logQuery);
+            logStmt.close();
         }
         catch (Exception e)
         {
             // logging failed
+            e.printStackTrace();
         }
     }
 
