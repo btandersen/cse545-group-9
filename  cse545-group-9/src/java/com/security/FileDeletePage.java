@@ -18,7 +18,7 @@ import javax.naming.*;
  *
  * @author Administrator
  */
-public class FileDownloadPage extends HttpServlet
+public class FileDeletePage extends HttpServlet
 {
     private InitialContext ctx;
     private DataSource ds;
@@ -57,7 +57,7 @@ public class FileDownloadPage extends HttpServlet
         {
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>File Download Page</title>");
+            out.println("<title>File Delete Page</title>");
             out.println("</head>");
             out.println("<body>");
 
@@ -72,12 +72,10 @@ public class FileDownloadPage extends HttpServlet
 
             ResultSet userRs = null;
             ResultSet docRs = null;
-            ResultSet shareRs = null;
 
             String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
                     + " WHERE " + "uname" + " = '" + uname + "'";
             String docQuery = null;
-            String shareQuery = null;
 
             try
             {
@@ -91,25 +89,17 @@ public class FileDownloadPage extends HttpServlet
 
                     boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
                     boolean userIsRegEmp = (userRole == Roles.REG_EMP.ordinal());
-                    boolean userIsGuest = (userRole == Roles.GUEST.ordinal());
 
                     if (userIsManager)
                     {
-                        // share, own, dept
-                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE (A.ouid=" + uid + ") OR (A.dept='" + userDept + "')";
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid;
+                        // own, dept
+                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+                      
                     }
                     else if (userIsRegEmp)
                     {
-                        // share, own
                         //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
-                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid;
-                    }
-                    else if (userIsGuest)
-                    {
-                        // share
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid;
+                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
                     }
                     else
                     {
@@ -117,9 +107,8 @@ public class FileDownloadPage extends HttpServlet
                     }
 
                     docRs = docStmt.executeQuery(docQuery);
-                    shareRs = shareStmt.executeQuery(shareQuery);
-                    
-                    out.println("<form action=\"FileDownload\" method=POST>");
+
+                    out.println("<form action=\"FileDelete\" method=POST>");
                     out.println("<table><th>Owned</th>");
                     out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
 
@@ -135,22 +124,6 @@ public class FileDownloadPage extends HttpServlet
                         out.println("</tr>");
                     }
 
-                    out.println("</table>");
-                    out.println("<table><th>Shared</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
-
-                    while (shareRs.next())
-                    {
-                        out.println("<tr>");
-                        out.println("<td>" + shareRs.getString("title") + "</td><td>"
-                                + shareRs.getString("auth") + "</td><td>"
-                                + shareRs.getString("dept") + "</td><td>"
-                                + String.valueOf(shareRs.getInt("ouid")) + "</td><td>"
-                                + shareRs.getString("filename") + "</td><td>"
-                                + "<input type=\"radio\" name=\"title\" value=\"" + shareRs.getString("title") + "\"></td>");
-                        out.println("</tr>");
-                    }
-                    
                     out.println("<tr><td><input type=\"submit\" value=\"Submit\" /></td></tr>");
                     out.println("</table>");
                     out.println("</form>");
@@ -163,8 +136,9 @@ public class FileDownloadPage extends HttpServlet
             catch (Exception e)
             {
                 // SQL Error
+                e.printStackTrace();
             }
-            
+
             out.println("<a href=\"user.jsp\" >Return to User Page</a>");
             out.println("</body>");
             out.println("</html>");

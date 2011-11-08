@@ -68,6 +68,10 @@
         <servlet-name>FileUnlockPage</servlet-name>
         <servlet-class>com.security.FileUnlockPage</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>FileDeletePage</servlet-name>
+        <servlet-class>com.security.FileDeletePage</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -136,6 +140,10 @@
     <servlet-mapping>
         <servlet-name>FileUnlockPage</servlet-name>
         <url-pattern>/user/FileUnlockPage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileDeletePage</servlet-name>
+        <url-pattern>/user/FileDeletePage</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
