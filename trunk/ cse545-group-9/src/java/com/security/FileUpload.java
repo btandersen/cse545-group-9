@@ -185,7 +185,7 @@ public class FileUpload extends HttpServlet
                                                 out.println("<h1>File uploaded...</h1>");
                                                 out.println("</body>");
                                                 out.println("</html>");
-                                                response.setHeader("Refresh", "5;user.jsp");
+                                                response.setHeader("Refresh", "5;fileupload.jsp");
                                             }
                                             else
                                             {
@@ -198,7 +198,7 @@ public class FileUpload extends HttpServlet
                                                 out.println("<h1>You selected a wrong department...</h1>");
                                                 out.println("</body>");
                                                 out.println("</html>");
-                                                response.setHeader("Refresh", "5;user.jsp");
+                                                response.setHeader("Refresh", "5;fileupload.jsp");
                                             }
 
                                             uploadedStream.close();
@@ -214,7 +214,7 @@ public class FileUpload extends HttpServlet
                                             out.println("<h1>You selected an invalid department...</h1>");
                                             out.println("</body>");
                                             out.println("</html>");
-                                            response.setHeader("Refresh", "5;user.jsp");
+                                            response.setHeader("Refresh", "5;fileupload.jsp");
                                         }
                                     }
                                     else
@@ -228,7 +228,7 @@ public class FileUpload extends HttpServlet
                                         out.println("<h1>You selected an invalid filename...</h1>");
                                         out.println("</body>");
                                         out.println("</html>");
-                                        response.setHeader("Refresh", "5;user.jsp");
+                                        response.setHeader("Refresh", "5;fileupload.jsp");
                                     }
                                 }
                                 else
@@ -242,7 +242,7 @@ public class FileUpload extends HttpServlet
                                     out.println("<h1>You selected an invalid autor name...</h1>");
                                     out.println("</body>");
                                     out.println("</html>");
-                                    response.setHeader("Refresh", "5;user.jsp");
+                                    response.setHeader("Refresh", "5;fileupload.jsp");
                                 }
                             }
                             else
@@ -256,7 +256,7 @@ public class FileUpload extends HttpServlet
                                 out.println("<h1>You selected an invalid title...</h1>");
                                 out.println("</body>");
                                 out.println("</html>");
-                                response.setHeader("Refresh", "5;user.jsp");
+                                response.setHeader("Refresh", "5;fileupload.jsp");
                             }
                         }
                         catch (Exception e)
@@ -269,7 +269,7 @@ public class FileUpload extends HttpServlet
                             out.println("<h1>Error encountered uploading file...</h1>");
                             out.println("</body>");
                             out.println("</html>");
-                            response.setHeader("Refresh", "5;user.jsp");
+                            response.setHeader("Refresh", "5;fileupload.jsp");
                         }
                     }
                 }
@@ -284,7 +284,7 @@ public class FileUpload extends HttpServlet
                     out.println("<h1>You are not a valid user...</h1>");
                     out.println("</body>");
                     out.println("</html>");
-                    response.setHeader("Refresh", "5;user.jsp");
+                    response.setHeader("Refresh", "5;fileupload.jsp");
                 }
 
                 stmt.close();
@@ -299,7 +299,7 @@ public class FileUpload extends HttpServlet
                 out.println("<h1>Error encountered uploading file...</h1>");
                 out.println("</body>");
                 out.println("</html>");
-                response.setHeader("Refresh", "5;user.jsp");
+                response.setHeader("Refresh", "5;fileupload.jsp");
             }
         }
 

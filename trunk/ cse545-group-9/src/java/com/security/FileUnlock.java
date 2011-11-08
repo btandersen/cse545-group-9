@@ -6,6 +6,7 @@ package com.security;
 
 import java.io.IOException;
 
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,9 @@ public class FileUnlock extends HttpServlet
     {
         boolean result = false;
 
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
 
@@ -90,26 +94,72 @@ public class FileUnlock extends HttpServlet
                     {
                         lockRs.deleteRow();
                         result = true;
+
+                        out.println("<html>");
+                        out.println("<head>");
+                        out.println("<title>File Unlock</title>");
+                        out.println("</head>");
+                        out.println("<body>");
+                        out.println("<h1>File unlocked sucessfully...</h1>");
+                        out.println("</body>");
+                        out.println("</html>");
+                        response.setHeader("Refresh", "5;FileUnlockPage");
                     }
                     else
                     {
                         // user did not have it locked
+                        out.println("<html>");
+                        out.println("<head>");
+                        out.println("<title>File Unlock</title>");
+                        out.println("</head>");
+                        out.println("<body>");
+                        out.println("<h1>File was not locked...</h1>");
+                        out.println("</body>");
+                        out.println("</html>");
+                        response.setHeader("Refresh", "5;FileUnlockPage");
                     }
                 }
                 catch (Exception e)
                 {
                     // lockStmt SQL error
+                    out.println("<html>");
+                    out.println("<head>");
+                    out.println("<title>File Unlock</title>");
+                    out.println("</head>");
+                    out.println("<body>");
+                    out.println("<h1>Error accesing file status...</h1>");
+                    out.println("</body>");
+                    out.println("</html>");
+                    response.setHeader("Refresh", "5;FileUnlockPage");
                 }
 
             }
             else
             {
                 // bad user or doc
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>File Unlock</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>Invalid user or document...</h1>");
+                out.println("</body>");
+                out.println("</html>");
+                response.setHeader("Refresh", "5;FileUnlockPage");
             }
         }
         catch (Exception e)
         {
             // SQL error
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>File Unlock</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Error processing request...</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            response.setHeader("Refresh", "5;FileUnlockPage");
         }
 
         // log result

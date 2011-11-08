@@ -56,6 +56,18 @@
         <servlet-name>FileDownloadPage</servlet-name>
         <servlet-class>com.security.FileDownloadPage</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>FileUpdatePage</servlet-name>
+        <servlet-class>com.security.FileUpdatePage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FileLockPage</servlet-name>
+        <servlet-class>com.security.FileLockPage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FileUnlockPage</servlet-name>
+        <servlet-class>com.security.FileUnlockPage</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -112,6 +124,18 @@
     <servlet-mapping>
         <servlet-name>FileDownloadPage</servlet-name>
         <url-pattern>/user/FileDownloadPage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileUpdatePage</servlet-name>
+        <url-pattern>/user/FileUpdatePage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileLockPage</servlet-name>
+        <url-pattern>/user/FileLockPage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileUnlockPage</servlet-name>
+        <url-pattern>/user/FileUnlockPage</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

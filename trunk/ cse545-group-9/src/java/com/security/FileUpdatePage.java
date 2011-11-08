@@ -18,7 +18,7 @@ import javax.naming.*;
  *
  * @author Administrator
  */
-public class FileDownloadPage extends HttpServlet
+public class FileUpdatePage extends HttpServlet
 {
     private InitialContext ctx;
     private DataSource ds;
@@ -57,7 +57,7 @@ public class FileDownloadPage extends HttpServlet
         {
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>File Download Page</title>");
+            out.println("<title>File Update Page</title>");
             out.println("</head>");
             out.println("<body>");
 
@@ -118,10 +118,9 @@ public class FileDownloadPage extends HttpServlet
 
                     docRs = docStmt.executeQuery(docQuery);
                     shareRs = shareStmt.executeQuery(shareQuery);
-                    
-                    out.println("<form action=\"FileDownload\" method=POST>");
+
                     out.println("<table><th>Owned</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
+                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th>");
 
                     while (docRs.next())
                     {
@@ -130,14 +129,13 @@ public class FileDownloadPage extends HttpServlet
                                 + docRs.getString("auth") + "</td><td>"
                                 + docRs.getString("dept") + "</td><td>"
                                 + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
-                                + docRs.getString("filename") + "</td><td>"
-                                + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
+                                + docRs.getString("filename") + "</td>");
                         out.println("</tr>");
                     }
 
                     out.println("</table>");
                     out.println("<table><th>Shared</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
+                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th>");
 
                     while (shareRs.next())
                     {
@@ -146,14 +144,49 @@ public class FileDownloadPage extends HttpServlet
                                 + shareRs.getString("auth") + "</td><td>"
                                 + shareRs.getString("dept") + "</td><td>"
                                 + String.valueOf(shareRs.getInt("ouid")) + "</td><td>"
-                                + shareRs.getString("filename") + "</td><td>"
-                                + "<input type=\"radio\" name=\"title\" value=\"" + shareRs.getString("title") + "\"></td>");
+                                + shareRs.getString("filename") + "</td>");
                         out.println("</tr>");
                     }
-                    
-                    out.println("<tr><td><input type=submit value=submit /></td></tr>");
+
                     out.println("</table>");
-                    out.println("</form>");
+
+                    out.println("<FORM enctype=\"multipart/form-data\" action=\"FileUpdate\" method=POST>");
+                    out.println("<table border=\"0\">");
+                    out.println("<tr><td colspan=\"2\">File Update</td></tr>");
+                    
+                    docRs.beforeFirst();
+                    shareRs.beforeFirst();
+                    
+                    out.println("<tr><td>Select File to Update:</td><td><select name=\"title\">");
+                    
+                    while (docRs.next())
+                    {
+                        out.println("<option value=\"" + docRs.getString("title") + "\">" + docRs.getString("title") + "</option>");
+                    }
+                    
+                    while (shareRs.next())
+                    {
+                        out.println("<option value=\"" + shareRs.getString("title") + "\">" + shareRs.getString("title") + "</option>");
+                    }
+                    
+                    out.println("</select></td></tr>");
+                    
+                    //String deptSet = "HR,LS,IT,SP,RD,FN";
+                    
+                    out.println("<tr><td>Enter New Title:</td><td><input name=\"newtitle\" type=\"text\" /></td></tr>");
+                    out.println("<tr><td>Enter New Author:</td><td><input name=\"newauthor\" type=\"text\" /></td></tr>");
+                    out.println("<tr><td>Enter New Department:</td><td><select name=\"newdept\" type=\"text\">"
+                            + "<option value=\"HR\">HR</option>"
+                            + "<option value=\"LS\">LS</option>"
+                            + "<option value=\"IT\">IT</option>"
+                            + "<option value=\"SP\">SP</option>"
+                            + "<option value=\"RD\">RD</option>"
+                            + "<option value=\"FN\">FN</option>"
+                            + "</select></td></tr>");
+                    out.println("<tr><td>Choose the file To Update</td><td><input name=\"file\" type=\"file\" /></td></tr>");
+                    out.println("<tr><td colspan=\"2\"><input type=\"submit\" value=\"Submit\" /></td></tr>");
+                    out.println("</table>");
+                    out.println("</FORM>");
                 }
                 else
                 {

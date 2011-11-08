@@ -9,11 +9,12 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>File Upload Page</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>File Upload</h1>
         <%@include file="/WEB-INF/jspf/fileuploadform.jspf" %>
+        <a href="user.jsp" >Return to User Page</a>
         <%@include file="/WEB-INF/jspf/logoutform.jspf" %>
     </body>
 </html>

@@ -119,61 +119,56 @@ public class FileLock extends HttpServlet
                 boolean userMeetsRoleReq = (role >= ownerRole);
                 boolean userMeetsDeptReq = (userDept.contains(docDept));
 
-                if (ownerRs.next())
+                if (userIsOwner || (shared && lockPerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
                 {
-                    if (userIsOwner || (shared && lockPerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
+                    try
                     {
-                        try
-                        {
-                            Statement lockStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-                            String lockQuery = "INSERT INTO mydb.Locked (ldid,luid) VALUES ('"
-                                    + did + "','"
-                                    + uid + "','";
+                        Statement lockStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                        String lockQuery = "INSERT INTO mydb.Locked (ldid,luid) VALUES ("
+                                + did + ","
+                                + uid + ")";
 
-                            lockStmt.executeUpdate(lockQuery);
-                            result = true;
-                        }
-                        catch (Exception e)
-                        {
-                            // already locked
-                            out.println("<html>");
-                            out.println("<head>");
-                            out.println("<title>File Lock</title>");
-                            out.println("</head>");
-                            out.println("<body>");
-                            out.println("<h1>File is already locked...</h1>");
-                            out.println("</body>");
-                            out.println("</html>");
-                            response.setHeader("Refresh", "5;user.jsp");
-                        }
-                    }
-                    else
-                    {
-                        // bad permission
+                        lockStmt.executeUpdate(lockQuery);
+                        result = true;
+                        
                         out.println("<html>");
                         out.println("<head>");
                         out.println("<title>File Lock</title>");
                         out.println("</head>");
                         out.println("<body>");
-                        out.println("<h1>You do not have permission to lock this file...</h1>");
+                        out.println("<h1>File locked sucessfully...</h1>");
                         out.println("</body>");
                         out.println("</html>");
-                        response.setHeader("Refresh", "5;user.jsp");
+                        response.setHeader("Refresh", "5;FileLockPage");
+                    }
+                    catch (Exception e)
+                    {
+                        // already locked
+                        out.println("<html>");
+                        out.println("<head>");
+                        out.println("<title>File Lock</title>");
+                        out.println("</head>");
+                        out.println("<body>");
+                        out.println("<h1>File is already locked...</h1>");
+                        out.println("</body>");
+                        out.println("</html>");
+                        response.setHeader("Refresh", "5;FileLockPage");
                     }
                 }
                 else
                 {
-                    // bad doc ouid
+                    // bad permission
                     out.println("<html>");
                     out.println("<head>");
                     out.println("<title>File Lock</title>");
                     out.println("</head>");
                     out.println("<body>");
-                    out.println("<h1>Invalid document owner...</h1>");
+                    out.println("<h1>You do not have permission to lock this file...</h1>");
                     out.println("</body>");
                     out.println("</html>");
-                    response.setHeader("Refresh", "5;user.jsp");
+                    response.setHeader("Refresh", "5;FileLockPage");
                 }
+
 
             }
             else
@@ -187,7 +182,7 @@ public class FileLock extends HttpServlet
                 out.println("<h1>Invalid user or document...</h1>");
                 out.println("</body>");
                 out.println("</html>");
-                response.setHeader("Refresh", "5;user.jsp");
+                response.setHeader("Refresh", "5;FileLockPage");
             }
         }
         catch (Exception e)
@@ -201,7 +196,7 @@ public class FileLock extends HttpServlet
             out.println("<h1>Error attempting to lock file...</h1>");
             out.println("</body>");
             out.println("</html>");
-            response.setHeader("Refresh", "5;user.jsp");
+            response.setHeader("Refresh", "5;FileLockPage");
         }
 
         // log result

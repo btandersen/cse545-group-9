@@ -5,19 +5,19 @@
         </tr>
         <tr>
             <td>Enter Title:</td>
-            <td><input name="title" type="text"</td>
+            <td><input name="title" type="text" /></td>
         </tr>
         <tr>
             <td>Enter New Title:</td>
-            <td><input name="newtitle" type="text"</td>
+            <td><input name="newtitle" type="text" /></td>
         </tr>
         <tr>
             <td>Enter New Author:</td>
-            <td><input name="newauthor" type="text"</td>
+            <td><input name="newauthor" type="text" /></td>
         </tr>
         <tr>
             <td>Enter New Department:</td>
-            <td><input name="newdept" type="text"</td>
+            <td><input name="newdept" type="text" /></td>
         </tr>
         <tr>
             <td>Choose the file To Update</td>
