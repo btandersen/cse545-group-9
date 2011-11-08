@@ -82,8 +82,8 @@ public class FileShare extends HttpServlet
                 String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
                         + " WHERE " + "title" + " = '" + title + "'";
 
-                String shareUserQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                        + " WHERE " + "uname" + " = '" + shareUser + "'";
+                String shareUserQuery = "SELECT * FROM " + "mydb" + "." + "Users U"
+                        + " WHERE " + "U.uname" + " = '" + shareUser + "' AND (NOT EXISTS(SELECT * FROM mydb.Groups G WHERE G.groupid='appadmin' AND G.uname='" + shareUser + "'))";
 
                 userRs = userStmt.executeQuery(userQuery);
                 docRs = docStmt.executeQuery(docQuery);
@@ -97,26 +97,43 @@ public class FileShare extends HttpServlet
                         {
                             String suid = String.valueOf(shareUserRs.getInt("uid"));
                             String sdid = String.valueOf(docRs.getInt("did"));
+                            int shareUserRole = shareUserRs.getInt("role");
 
-                            Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                            if (shareUserRole > Roles.TEMP.ordinal())
+                            {
+                                Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-                            String shareQuery = "INSERT INTO mydb.Shared (sdid,suid,perm) VALUES ('"
-                                    + sdid + "','"
-                                    + suid + "','"
-                                    + perm + "')";
+                                String shareQuery = "INSERT INTO mydb.Shared (sdid,suid,perm) VALUES ('"
+                                        + sdid + "','"
+                                        + suid + "','"
+                                        + perm + "')";
 
-                            shareStmt.executeUpdate(shareQuery);
-                            result = true;
+                                shareStmt.executeUpdate(shareQuery);
+                                result = true;
 
-                            out.println("<html>");
-                            out.println("<head>");
-                            out.println("<title>File Share</title>");
-                            out.println("</head>");
-                            out.println("<body>");
-                            out.println("<h1>File shared...</h1>");
-                            out.println("</body>");
-                            out.println("</html>");
-                            response.setHeader("Refresh", "5;FileSharePage");
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>File Share</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>File shared...</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;FileSharePage");
+                            }
+                            else
+                            {
+                                // cannot share with TEMP user
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>File Share</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>Cannot share with TEMP users...</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;FileSharePage");
+                            }
                         }
                         else
                         {
@@ -168,7 +185,14 @@ public class FileShare extends HttpServlet
                 out.println("<title>File Share</title>");
                 out.println("</head>");
                 out.println("<body>");
-                out.println("<h1>Error sharing file...</h1>");
+                if (e.getMessage().contains("Duplicate"))
+                {
+                    out.println("<h1>Already shared with requested user and permission...</h1>");
+                }
+                else
+                {
+                    out.println("<h1>Error sharing file...</h1>");
+                }
                 out.println("</body>");
                 out.println("</html>");
                 response.setHeader("Refresh", "5;FileSharePage");
@@ -192,11 +216,11 @@ public class FileShare extends HttpServlet
         try
         {
             Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result) VALUES ('"
                     + user + "','"
                     + title + "','"
                     + "shared','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
+                    + String.valueOf(result) + "')";
             logStmt.executeUpdate(logQuery);
             logStmt.close();
         }

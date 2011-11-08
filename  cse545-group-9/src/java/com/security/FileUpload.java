@@ -309,11 +309,11 @@ public class FileUpload extends HttpServlet
         try
         {
             Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result) VALUES ('"
                     + user + "','"
                     + title + "','"
                     + "upload','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
+                    + String.valueOf(result) + "')";
             logStmt.executeUpdate(logQuery);
             logStmt.close();
         }

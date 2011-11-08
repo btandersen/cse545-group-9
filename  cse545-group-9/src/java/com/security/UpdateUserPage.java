@@ -121,6 +121,7 @@ public class UpdateUserPage extends HttpServlet
                             + "<option value=\"SP\">SP</option>"
                             + "<option value=\"RD\">RD</option>"
                             + "<option value=\"FN\">FN</option>"
+                            + "<option value=\"GUEST\">GUEST</option>"
                             + "</select></td></tr>");
                     
                     out.println("<tr><td>Enter Security Group:</td><td><select name=\"group\" type=\"text\">"

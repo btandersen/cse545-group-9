@@ -94,6 +94,12 @@ public class UpdateUser extends HttpServlet
                             userToUpdateRs = userToUpdateStmt.executeQuery(userToUpdateQuery);
                             groupRs = groupStmt.executeQuery(groupQuery);
 
+                            if (newRole.equals(String.valueOf(Roles.GUEST.ordinal())))
+                            {
+                                newDept = "GUEST";
+                                group = "appuser";
+                            }
+
                             if (userToUpdateRs.next())
                             {
                                 userToUpdateRs.updateInt("role", Integer.parseInt(newRole));
@@ -111,7 +117,7 @@ public class UpdateUser extends HttpServlet
                                     groupRs.updateString("uname", userToUpdate);
                                     groupRs.insertRow();
                                 }
-                                
+
                                 out.println("<html>");
                                 out.println("<head>");
                                 out.println("<title>Update User</title>");
@@ -153,10 +159,21 @@ public class UpdateUser extends HttpServlet
                 }
             }
         }
-        finally
+        catch (Exception e)
         {
-            out.close();
+            // SQL Error
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Update User</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>User updated failed...</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            response.setHeader("Refresh", "5;UpdateUserPage");
         }
+        
+        out.close();
     }
 
     /** 

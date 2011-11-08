@@ -115,7 +115,7 @@ public class FileUnlock extends HttpServlet
                         out.println("<title>File Unlock</title>");
                         out.println("</head>");
                         out.println("<body>");
-                        out.println("<h1>File was not locked...</h1>");
+                        out.println("<h1>File was not locked by current user...</h1>");
                         out.println("</body>");
                         out.println("</html>");
                         response.setHeader("Refresh", "5;FileUnlockPage");
@@ -168,11 +168,11 @@ public class FileUnlock extends HttpServlet
         try
         {
             Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result) VALUES ('"
                     + user + "','"
                     + title + "','"
                     + "unlocked','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
+                    + String.valueOf(result) + "')";
             logStmt.executeUpdate(logQuery);
             logStmt.close();
         }

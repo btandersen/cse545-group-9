@@ -132,7 +132,7 @@ public class FileLock extends HttpServlet
 
                         lockStmt.executeUpdate(lockQuery);
                         result = true;
-                        
+
                         out.println("<html>");
                         out.println("<head>");
                         out.println("<title>File Lock</title>");
@@ -205,11 +205,11 @@ public class FileLock extends HttpServlet
         try
         {
             Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result) VALUES ('"
                     + user + "','"
                     + title + "','"
                     + "locked','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
+                    + String.valueOf(result) + "')";
             logStmt.executeUpdate(logQuery);
             logStmt.close();
         }
