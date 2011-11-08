@@ -18,6 +18,7 @@
         <p><a href="FileDownloadPage">Download a file</a></p>
         <p><a href="FileLockPage">Lock a file</a></p>
         <p><a href="FileUnlockPage">Unlock a file</a></p>
+        <p><a href="FileDeletePage">Delete a file</a></p>
         <p><%@include file="/WEB-INF/jspf/logoutform.jspf" %>
     </body>
 </html>

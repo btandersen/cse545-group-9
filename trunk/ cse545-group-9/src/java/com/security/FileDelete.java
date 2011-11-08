@@ -116,6 +116,16 @@ public class FileDelete extends HttpServlet
                             {
                                 docRs.deleteRow();
                                 result = true;
+                                
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>File Delete</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>File deleted successfully...</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;FileDeletePage");
                             }
                             else
                             {
@@ -128,7 +138,7 @@ public class FileDelete extends HttpServlet
                                 out.println("<h1>File is locked by another user...</h1>");
                                 out.println("</body>");
                                 out.println("</html>");
-                                response.setHeader("Refresh", "5;user.jsp");
+                                response.setHeader("Refresh", "5;FileDeletePage");
                             }
                         }
                         else
@@ -142,7 +152,7 @@ public class FileDelete extends HttpServlet
                             out.println("<h1>You do not have permission to delete this file...</h1>");
                             out.println("</body>");
                             out.println("</html>");
-                            response.setHeader("Refresh", "5;user.jsp");
+                            response.setHeader("Refresh", "5;FileDeletePage");
                         }
                     }
                     else
@@ -156,7 +166,7 @@ public class FileDelete extends HttpServlet
                         out.println("<h1>Guest cannot delete files...</h1>");
                         out.println("</body>");
                         out.println("</html>");
-                        response.setHeader("Refresh", "5;user.jsp");
+                        response.setHeader("Refresh", "5;FileDeletePage");
                     }
                 }
                 else
@@ -170,7 +180,7 @@ public class FileDelete extends HttpServlet
                     out.println("<h1>Invalid document owner...</h1>");
                     out.println("</body>");
                     out.println("</html>");
-                    response.setHeader("Refresh", "5;user.jsp");
+                    response.setHeader("Refresh", "5;FileDeletePage");
                 }
             }
             else
@@ -184,7 +194,7 @@ public class FileDelete extends HttpServlet
                 out.println("<h1>Invalid user or document...</h1>");
                 out.println("</body>");
                 out.println("</html>");
-                response.setHeader("Refresh", "5;user.jsp");
+                response.setHeader("Refresh", "5;FileDeletePage");
             }
         }
         catch (Exception e)
@@ -198,7 +208,7 @@ public class FileDelete extends HttpServlet
             out.println("<h1>Error attempting to delete file...</h1>");
             out.println("</body>");
             out.println("</html>");
-            response.setHeader("Refresh", "5;user.jsp");
+            response.setHeader("Refresh", "5;FileDeletePage");
         }
 
         // log result
