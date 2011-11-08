@@ -98,19 +98,19 @@ public class FileLockPage extends HttpServlet
                         // share, own, dept
                         //select * from docs D where D.ouid=1 AND not exists (select * from locked L where D.did=L.ldid)
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
-                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";;
+                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='L' AND B.sdid=A.did AND B.suid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";;
                     }
                     else if (userIsRegEmp)
                     {
                         // share, own
                         //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
-                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='L' AND B.sdid=A.did AND B.suid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
                     }
                     else if (userIsGuest)
                     {
                         // share
-                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='L' AND B.sdid=A.did AND B.suid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
                     }
                     else
                     {

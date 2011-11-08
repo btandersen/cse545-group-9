@@ -101,7 +101,7 @@ public class FileShare extends HttpServlet
                             String shareQuery = "INSERT INTO mydb.Shared (sdid,suid,perm) VALUES ('"
                                     + sdid + "','"
                                     + suid + "','"
-                                    + perm + "','";
+                                    + perm + "')";
 
                             shareStmt.executeUpdate(shareQuery);
                             result = true;
@@ -114,7 +114,7 @@ public class FileShare extends HttpServlet
                             out.println("<h1>File shared...</h1>");
                             out.println("</body>");
                             out.println("</html>");
-                            response.setHeader("Refresh", "5;user.jsp");
+                            response.setHeader("Refresh", "5;FileSharePage");
                         }
                         else
                         {
@@ -127,7 +127,7 @@ public class FileShare extends HttpServlet
                             out.println("<h1>Invalid user to share with...</h1>");
                             out.println("</body>");
                             out.println("</html>");
-                            response.setHeader("Refresh", "5;user.jsp");
+                            response.setHeader("Refresh", "5;FileSharePage");
                         }
                     }
                     else
@@ -141,7 +141,7 @@ public class FileShare extends HttpServlet
                         out.println("<h1>Invalid document...</h1>");
                         out.println("</body>");
                         out.println("</html>");
-                        response.setHeader("Refresh", "5;user.jsp");
+                        response.setHeader("Refresh", "5;FileSharePage");
                     }
                 }
                 else
@@ -155,7 +155,7 @@ public class FileShare extends HttpServlet
                     out.println("<h1>Invalid user...</h1>");
                     out.println("</body>");
                     out.println("</html>");
-                    response.setHeader("Refresh", "5;user.jsp");
+                    response.setHeader("Refresh", "5;FileSharePage");
                 }
             }
             catch (Exception e)
@@ -169,7 +169,7 @@ public class FileShare extends HttpServlet
                 out.println("<h1>Error sharing file...</h1>");
                 out.println("</body>");
                 out.println("</html>");
-                response.setHeader("Refresh", "5;user.jsp");
+                response.setHeader("Refresh", "5;FileSharePage");
             }
         }
         else
@@ -183,7 +183,7 @@ public class FileShare extends HttpServlet
             out.println("<h1>Invalid permission request...</h1>");
             out.println("</body>");
             out.println("</html>");
-            response.setHeader("Refresh", "5;user.jsp");
+            response.setHeader("Refresh", "5;FileSharePage");
         }
 
         // log result

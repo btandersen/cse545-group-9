@@ -97,19 +97,18 @@ public class FileDownloadPage extends HttpServlet
                     {
                         // share, own, dept
                         docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE (A.ouid=" + uid + ") OR (A.dept='" + userDept + "')";
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid;
+                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
                     }
                     else if (userIsRegEmp)
                     {
                         // share, own
-                        //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
                         docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid;
+                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
                     }
                     else if (userIsGuest)
                     {
                         // share
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid;
+                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
                     }
                     else
                     {
