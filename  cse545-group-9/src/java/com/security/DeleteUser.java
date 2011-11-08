@@ -14,6 +14,8 @@ import java.sql.*;
 import javax.sql.*;
 import javax.naming.*;
 
+import javax.servlet.ServletConfig;
+
 /**
  *
  * @author Administrator
@@ -25,8 +27,10 @@ public class DeleteUser extends HttpServlet
     private Connection conn;
 
     @Override
-    public void init()
+    public void init(ServletConfig config) throws ServletException
     {
+        super.init(config);
+        ctx = null;
         try
         {
             ctx = new InitialContext();

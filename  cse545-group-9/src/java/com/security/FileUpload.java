@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,8 +29,10 @@ public class FileUpload extends HttpServlet
     Connection conn;
 
     @Override
-    public void init()
+    public void init(ServletConfig config) throws ServletException
     {
+        super.init(config);
+        ctx = null;
         try
         {
             ctx = new InitialContext();
