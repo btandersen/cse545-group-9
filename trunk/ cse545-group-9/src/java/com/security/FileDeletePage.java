@@ -68,13 +68,13 @@ public class FileDeletePage extends HttpServlet
 
             Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
             Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
             ResultSet userRs = null;
             ResultSet docRs = null;
 
             String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
                     + " WHERE " + "uname" + " = '" + uname + "'";
+            
             String docQuery = null;
 
             try

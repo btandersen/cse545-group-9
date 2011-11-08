@@ -72,6 +72,18 @@
         <servlet-name>FileDeletePage</servlet-name>
         <servlet-class>com.security.FileDeletePage</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>UpdateUserPage</servlet-name>
+        <servlet-class>com.security.UpdateUserPage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FileSharePage</servlet-name>
+        <servlet-class>com.security.FileSharePage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteUser</servlet-name>
+        <servlet-class>com.security.DeleteUser</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -144,6 +156,18 @@
     <servlet-mapping>
         <servlet-name>FileDeletePage</servlet-name>
         <url-pattern>/user/FileDeletePage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateUserPage</servlet-name>
+        <url-pattern>/admin/UpdateUserPage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileSharePage</servlet-name>
+        <url-pattern>/user/FileSharePage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteUser</servlet-name>
+        <url-pattern>/admin/DeleteUser</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

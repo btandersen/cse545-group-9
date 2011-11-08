@@ -18,7 +18,7 @@ import javax.naming.*;
  *
  * @author Administrator
  */
-public class FileUpdatePage extends HttpServlet
+public class FileSharePage extends HttpServlet
 {
     private InitialContext ctx;
     private DataSource ds;
@@ -53,31 +53,30 @@ public class FileUpdatePage extends HttpServlet
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
+        String user = request.getRemoteUser();
+
         try
         {
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>File Update Page</title>");
+            out.println("<title>Update User Page</title>");
             out.println("</head>");
             out.println("<body>");
 
-            String uname = request.getRemoteUser();
-            String uid = null;
-            int userRole = 0;
-            String userDept = null;
-
             Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
             Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+            Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
             ResultSet userRs = null;
-            ResultSet docRs = null;
             ResultSet shareRs = null;
+            ResultSet docRs = null;
 
             String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                    + " WHERE " + "uname" + " = '" + uname + "'";
+                    + " WHERE " + "uname" + " = '" + user + "'";
+
+            String shareQuery = "SELECT * FROM " + "mydb" + "." + "Users WHERE NOT (uname='" + user + "')";
+
             String docQuery = null;
-            String shareQuery = null;
 
             try
             {
@@ -85,31 +84,23 @@ public class FileUpdatePage extends HttpServlet
 
                 if (userRs.next())
                 {
-                    uid = userRs.getString("uid");
-                    userRole = userRs.getInt("role");
-                    userDept = userRs.getString("dept");
+                    String uid = userRs.getString("uid");
+                    int userRole = userRs.getInt("role");
+                    String userDept = userRs.getString("dept");
 
                     boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
                     boolean userIsRegEmp = (userRole == Roles.REG_EMP.ordinal());
-                    boolean userIsGuest = (userRole == Roles.GUEST.ordinal());
 
                     if (userIsManager)
                     {
-                        // share, own, dept
-                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE (A.ouid=" + uid + ") OR (A.dept='" + userDept + "')";
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
+                        // own, dept
+                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "'))";
+
                     }
                     else if (userIsRegEmp)
                     {
-                        // share, own
                         //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
-                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
-                    }
-                    else if (userIsGuest)
-                    {
-                        // share
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
+                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
                     }
                     else
                     {
@@ -119,85 +110,44 @@ public class FileUpdatePage extends HttpServlet
                     docRs = docStmt.executeQuery(docQuery);
                     shareRs = shareStmt.executeQuery(shareQuery);
 
-                    out.println("<table><th>Owned</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th>");
-
-                    while (docRs.next())
-                    {
-                        out.println("<tr>");
-                        out.println("<td>" + docRs.getString("title") + "</td><td>"
-                                + docRs.getString("auth") + "</td><td>"
-                                + docRs.getString("dept") + "</td><td>"
-                                + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
-                                + docRs.getString("filename") + "</td>");
-                        out.println("</tr>");
-                    }
-
-                    out.println("</table>");
-                    out.println("<table><th>Shared</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th>");
-
-                    while (shareRs.next())
-                    {
-                        out.println("<tr>");
-                        out.println("<td>" + shareRs.getString("title") + "</td><td>"
-                                + shareRs.getString("auth") + "</td><td>"
-                                + shareRs.getString("dept") + "</td><td>"
-                                + String.valueOf(shareRs.getInt("ouid")) + "</td><td>"
-                                + shareRs.getString("filename") + "</td>");
-                        out.println("</tr>");
-                    }
-
-                    out.println("</table>");
-
-                    out.println("<FORM enctype=\"multipart/form-data\" action=\"FileUpdate\" method=POST>");
+                    out.println("<FORM action=\"FileShare\" method=POST>");
                     out.println("<table border=\"0\">");
-                    out.println("<tr><td colspan=\"2\">File Update</td></tr>");
+                    out.println("<tr><th colspan=\"2\">Share a document</th></tr>");
                     
-                    docRs.beforeFirst();
-                    shareRs.beforeFirst();
-                    
-                    out.println("<tr><td>Select File to Update:</td><td><select name=\"title\">");
-                    
+                    out.println("<tr><td>Select a document to share:</td><td><select name=\"title\">");
+
                     while (docRs.next())
                     {
                         out.println("<option value=\"" + docRs.getString("title") + "\">" + docRs.getString("title") + "</option>");
                     }
-                    
-                    while (shareRs.next())
-                    {
-                        out.println("<option value=\"" + shareRs.getString("title") + "\">" + shareRs.getString("title") + "</option>");
-                    }
-                    
+
                     out.println("</select></td></tr>");
                     
-                    //String deptSet = "HR,LS,IT,SP,RD,FN";
-                    
-                    out.println("<tr><td>Enter New Title:</td><td><input name=\"newtitle\" type=\"text\" /></td></tr>");
-                    out.println("<tr><td>Enter New Author:</td><td><input name=\"newauthor\" type=\"text\" /></td></tr>");
-                    out.println("<tr><td>Enter New Department:</td><td><select name=\"newdept\" type=\"text\">"
-                            + "<option value=\"HR\">HR</option>"
-                            + "<option value=\"LS\">LS</option>"
-                            + "<option value=\"IT\">IT</option>"
-                            + "<option value=\"SP\">SP</option>"
-                            + "<option value=\"RD\">RD</option>"
-                            + "<option value=\"FN\">FN</option>"
+                    out.println("<tr><td>Select user to share with:</td><td><select name=\"shareuser\">");
+
+                    while (shareRs.next())
+                    {
+                        out.println("<option value=\"" + shareRs.getString("uname") + "\">" + shareRs.getString("uname") + "</option>");
+                    }
+
+                    out.println("</select></td></tr>");
+
+                    out.println("<tr><td>Enter Security Group:</td><td><select name=\"perm\" type=\"text\">"
+                            + "<option value=\"R\">READ</option>"
+                            + "<option value=\"U\">UPDATE</option>"
+                            + "<option value=\"L\">CHECK IN/OUT</option>"
                             + "</select></td></tr>");
-                    out.println("<tr><td>Choose the file To Update</td><td><input name=\"file\" type=\"file\" /></td></tr>");
+
                     out.println("<tr><td colspan=\"2\"><input type=\"submit\" value=\"Submit\" /></td></tr>");
                     out.println("</table>");
                     out.println("</FORM>");
-                }
-                else
-                {
-                    // invalid user
                 }
             }
             catch (Exception e)
             {
                 // SQL Error
             }
-            
+
             out.println("<a href=\"user.jsp\" >Return to User Page</a>");
             out.println("</body>");
             out.println("</html>");

@@ -9,10 +9,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Admin Page</title>
     </head>
     <body>
         <h1>Admin Page</h1>
+        <a href="UpdateUserPage">Update a user</a>
         <%@include file="/WEB-INF/jspf/logoutform.jspf" %>
     </body>
 </html>

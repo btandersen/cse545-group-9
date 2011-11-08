@@ -127,13 +127,13 @@ DROP TABLE IF EXISTS `mydb`.`groups` ;
 
 CREATE  TABLE IF NOT EXISTS `mydb`.`groups` (
   `groupid` VARCHAR(20) NOT NULL ,
-  `uname` VARCHAR(45) NULL DEFAULT NULL ,
-  PRIMARY KEY (`groupid`) ,
+  `uname` VARCHAR(45) NOT NULL ,
+  PRIMARY KEY (`groupid`, `uname`) ,
   INDEX `FK_UNAME` (`uname` ASC) ,
   CONSTRAINT `FK_UNAME`
     FOREIGN KEY (`uname` )
     REFERENCES `mydb`.`Users` (`uname` )
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
