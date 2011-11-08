@@ -166,7 +166,7 @@ public class FileDownload extends HttpServlet
                                 out.println("<h1>Invalid file (file was empty)...</h1>");
                                 out.println("</body>");
                                 out.println("</html>");
-                                response.setHeader("Refresh", "5;user.jsp");
+                                response.setHeader("Refresh", "5;FileDownloadPage");
                             }
                         }
                         else
@@ -182,7 +182,7 @@ public class FileDownload extends HttpServlet
                             out.println("<h1>You do not have proper permission to download...</h1>");
                             out.println("</body>");
                             out.println("</html>");
-                            response.setHeader("Refresh", "5;user.jsp");
+                            response.setHeader("Refresh", "5;FileDownloadPage");
                         }
                     }
                     else
@@ -198,7 +198,7 @@ public class FileDownload extends HttpServlet
                         out.println("<h1>You do not have proper permission to download (not at least a guest user)...</h1>");
                         out.println("</body>");
                         out.println("</html>");
-                        response.setHeader("Refresh", "5;user.jsp");
+                        response.setHeader("Refresh", "5;FileDownloadPage");
                     }
                 }
                 else
@@ -214,7 +214,7 @@ public class FileDownload extends HttpServlet
                     out.println("<h1>Invalid document owner...</h1>");
                     out.println("</body>");
                     out.println("</html>");
-                    response.setHeader("Refresh", "5;user.jsp");
+                    response.setHeader("Refresh", "5;FileDownloadPage");
                 }
             }
             else
@@ -230,7 +230,7 @@ public class FileDownload extends HttpServlet
                 out.println("<h1>Invalid user or document...</h1>");
                 out.println("</body>");
                 out.println("</html>");
-                response.setHeader("Refresh", "5;user.jsp");
+                response.setHeader("Refresh", "5;FileDownloadPage");
             }
         }
         catch (Exception e)
@@ -246,7 +246,7 @@ public class FileDownload extends HttpServlet
             out.println("<h1>Error attempting to download...</h1>");
             out.println("</body>");
             out.println("</html>");
-            response.setHeader("Refresh", "5;user.jsp");
+            response.setHeader("Refresh", "5;FileDownloadPage");
         }
 
         // log result

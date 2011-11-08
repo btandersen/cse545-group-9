@@ -12,10 +12,12 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
-        <a href="fileupload.jsp">Upload a file</a>
-        <a href="fileupdate.jsp">Update a file</a>
-        <a href="FileDownloadPage">Download a file</a>
-        <%@include file="/WEB-INF/jspf/logoutform.jspf" %>
+        <h1>User Page</h1>
+        <p><a href="fileupload.jsp">Upload a file</a></p>
+        <p><a href="FileUpdatePage">Update a file</a></p>
+        <p><a href="FileDownloadPage">Download a file</a></p>
+        <p><a href="FileLockPage">Lock a file</a></p>
+        <p><a href="FileUnlockPage">Unlock a file</a></p>
+        <p><%@include file="/WEB-INF/jspf/logoutform.jspf" %>
     </body>
 </html>

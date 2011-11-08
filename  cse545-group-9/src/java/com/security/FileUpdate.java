@@ -53,11 +53,11 @@ public class FileUpdate extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         String deptSet = "HR,LS,IT,SP,RD,FN";
-        
+
         boolean result = false;
 
         String user = request.getRemoteUser();
-        String title = null;
+        String title = "";
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -71,30 +71,32 @@ public class FileUpdate extends HttpServlet
             Statement shareStmt = null;
             Statement lockStmt = null;
 
-            String uid = null;
-            String did = null;
-            String ouid = null;
-            String userDept = null;
-            String docDept = null;
+            String uid = "";
+            String did = "";
+            String ouid = "";
+            String userDept = "";
+            String docDept = "";
 
             int role = 0;
 
-            String fieldName = null;
-            String newTitle = null;
-            String newAuth = null;
-            String newDept = null;
-            String filename = null;
-            String contentType = null;
+            String fieldName = "";
+            String newTitle = "";
+            String newAuth = "";
+            String newDept = "";
+            String newFilename = "";
+            String contentType = "";
             boolean isInMemory = false;
             long sizeInBytes = 0;
             InputStream uploadedStream = null;
 
+            boolean newFile = false;
+
             String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
                     + " WHERE " + "uname" + " = '" + user + "'";
 
-            String docQuery = null;
-            String ownerQuery = null;
-            String shareQuery = null;
+            String docQuery = "";
+            String ownerQuery = "";
+            String shareQuery = "";
 
             try
             {
@@ -112,44 +114,51 @@ public class FileUpdate extends HttpServlet
                         String name = item.getFieldName();
                         String value = item.getString();
 
-                        if (name.equals("title"))
+                        if (!value.isEmpty())
                         {
-                            title = value;
-                        }
-                        else if (name.equals("newtitle"))
-                        {
-                            newTitle = value;
-                        }
-                        else if (name.equals("newauthor"))
-                        {
-                            newAuth = value;
-                        }
-                        else if (name.equals("newdept"))
-                        {
-                            newDept = value;
-                        }
-                        else
-                        {
-                            // name is wrong
-                            out.println("<html>");
-                            out.println("<head>");
-                            out.println("<title>File Update</title>");
-                            out.println("</head>");
-                            out.println("<body>");
-                            out.println("<h1>Error parsing form data...</h1>");
-                            out.println("</body>");
-                            out.println("</html>");
-                            response.setHeader("Refresh", "5;user.jsp");
+                            if (name.equals("title"))
+                            {
+                                title = value;
+                            }
+                            else if (name.equals("newtitle"))
+                            {
+                                newTitle = value;
+                            }
+                            else if (name.equals("newauthor"))
+                            {
+                                newAuth = value;
+                            }
+                            else if (name.equals("newdept"))
+                            {
+                                newDept = value;
+                            }
+                            else
+                            {
+                                // name is wrong
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>File Update</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>Error parsing form data...</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;FileUpdatePage");
+                            }
                         }
                     }
                     else
                     {
                         fieldName = item.getFieldName();
-                        filename = item.getName();
+                        newFilename = item.getName();
                         contentType = item.getContentType();
                         isInMemory = item.isInMemory();
                         sizeInBytes = item.getSize();
                         uploadedStream = item.getInputStream();
+                        if (sizeInBytes > 0)
+                        {
+                            newFile = true;
+                        }
                     }
                 }
 
@@ -179,27 +188,38 @@ public class FileUpdate extends HttpServlet
                         did = String.valueOf(docRs.getInt("did"));
                         docDept = docRs.getString("dept");
                         ouid = docRs.getString("ouid");
-                        
-                        String regex = "[\\w]+{1,45}";
-                        Pattern p = Pattern.compile(regex);
-                        
-                        Matcher m = p.matcher(newTitle);
 
-                        if ((newTitle == null) || (newTitle.isEmpty()) || !m.matches())
+                        String titleRegex = "[\\w]{1,45}+";
+                        String authRegex = "[\\w]{1,45}+";
+                        String fileNameRegex = "([\\w\\_-]+\\.([a-zA-Z]{1,4}+)){1,45}";
+
+                        Pattern titlePattern = Pattern.compile(titleRegex);
+                        Pattern authPattern = Pattern.compile(authRegex);
+                        Pattern filenamePattern = Pattern.compile(fileNameRegex);
+
+                        Matcher titleMatcher = titlePattern.matcher(newTitle);
+                        Matcher authMatcher = authPattern.matcher(newAuth);
+                        Matcher filenameMatcher = filenamePattern.matcher(newFilename);
+
+
+                        if ((newTitle == null) || (newTitle.isEmpty()) || !titleMatcher.matches())
                         {
                             newTitle = title;
                         }
 
-                         m = p.matcher(newAuth);
-                        
-                        if ((newAuth == null) || (newAuth.isEmpty()) || !m.matches())
+                        if ((newAuth == null) || (newAuth.isEmpty()) || !authMatcher.matches())
                         {
                             newAuth = docRs.getString("auth");
                         }
-                        
+
                         if ((newDept == null) || (newDept.isEmpty()) || !deptSet.contains(newDept))
                         {
                             newDept = docRs.getString("dept");
+                        }
+
+                        if ((newFilename == null) || (newFilename.isEmpty()) || !filenameMatcher.matches())
+                        {
+                            newFilename = docRs.getString("filename");
                         }
 
                         ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
@@ -244,94 +264,94 @@ public class FileUpdate extends HttpServlet
                             userHasLock = uid.equals(String.valueOf(lockRs.getInt("luid")));
                         }
 
-                        if (ownerRs.next())
+                        if (userIsOwner || (shared && updatePerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
                         {
-                            if (userIsOwner || (shared && updatePerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
+                            if (!locked || (locked && userHasLock))
                             {
-                                if (!locked || (locked && userHasLock))
+                                try
                                 {
-                                    try
+                                    if (userDept.contains(newDept))
                                     {
-                                        if (userDept.contains(newDept))
+                                        PreparedStatement psmt = null;
+
+                                        if (newFile)
                                         {
-                                            PreparedStatement psmt = conn.prepareStatement("UPDATE mydb.docs SET title=?,auth=?,dept=?,lastMod=?,filename=?,file=? WHERE did = " + did);
+                                            psmt = conn.prepareStatement("UPDATE mydb.docs SET title=?,auth=?,dept=?,lastMod=?,filename=?,file=? WHERE did = " + did);
                                             psmt.setString(1, newTitle);
                                             psmt.setString(2, newAuth);
                                             psmt.setString(3, newDept);
                                             psmt.setString(4, (new Date((new GregorianCalendar()).getTimeInMillis())).toString());
-                                            psmt.setString(5, filename);
+                                            psmt.setString(5, newFilename);
                                             psmt.setBinaryStream(6, uploadedStream, (int) sizeInBytes);
-
-                                            int s = psmt.executeUpdate();
-                                            result = true;
-                                            
-                                            out.println("<html>");
-                                            out.println("<head>");
-                                            out.println("<title>File Update</title>");
-                                            out.println("</head>");
-                                            out.println("<body>");
-                                            out.println("<h1>File updated successfully...</h1>");
-                                            out.println("</body>");
-                                            out.println("</html>");
-                                            response.setHeader("Refresh", "5;user.jsp");
                                         }
                                         else
                                         {
-                                            // wrong dept
-                                            out.println("<html>");
-                                            out.println("<head>");
-                                            out.println("<title>File Update</title>");
-                                            out.println("</head>");
-                                            out.println("<body>");
-                                            out.println("<h1>You selected an invalid department...</h1>");
-                                            out.println("</body>");
-                                            out.println("</html>");
-                                            response.setHeader("Refresh", "5;user.jsp");
+                                            psmt = conn.prepareStatement("UPDATE mydb.docs SET title=?,auth=?,dept=?,lastMod=?,filename=? WHERE did = " + did);
+                                            psmt.setString(1, newTitle);
+                                            psmt.setString(2, newAuth);
+                                            psmt.setString(3, newDept);
+                                            psmt.setString(4, (new Date((new GregorianCalendar()).getTimeInMillis())).toString());
+                                            psmt.setString(5, newFilename);
                                         }
 
-                                        uploadedStream.close();
-                                    }
-                                    catch (Exception e)
-                                    {
+                                        int s = psmt.executeUpdate();
+                                        result = true;
+
                                         out.println("<html>");
                                         out.println("<head>");
                                         out.println("<title>File Update</title>");
                                         out.println("</head>");
                                         out.println("<body>");
-                                        out.println("<h1>Error updating document...</h1>");
+                                        out.println("<h1>File updated successfully...</h1>");
                                         out.println("</body>");
                                         out.println("</html>");
-                                        response.setHeader("Refresh", "5;user.jsp");
+                                        response.setHeader("Refresh", "5;FileUpdatePage");
                                     }
+                                    else
+                                    {
+                                        // wrong dept
+                                        out.println("<html>");
+                                        out.println("<head>");
+                                        out.println("<title>File Update</title>");
+                                        out.println("</head>");
+                                        out.println("<body>");
+                                        out.println("<h1>You selected an invalid department...</h1>");
+                                        out.println("</body>");
+                                        out.println("</html>");
+                                        response.setHeader("Refresh", "5;FileUpdatePage");
+                                    }
+
+                                    uploadedStream.close();
                                 }
-                            }
-                            else
-                            {
-                                // wrong permissions
-                                out.println("<html>");
-                                out.println("<head>");
-                                out.println("<title>File Update</title>");
-                                out.println("</head>");
-                                out.println("<body>");
-                                out.println("<h1>Document owner is invalid...</h1>");
-                                out.println("</body>");
-                                out.println("</html>");
-                                response.setHeader("Refresh", "5;user.jsp");
+                                catch (Exception e)
+                                {
+                                    out.println("<html>");
+                                    out.println("<head>");
+                                    out.println("<title>File Update</title>");
+                                    out.println("</head>");
+                                    out.println("<body>");
+                                    out.println("<h1>Error updating document...</h1>");
+                                    out.println("</body>");
+                                    out.println("</html>");
+                                    response.setHeader("Refresh", "5;FileUpdatePage");
+                                }
                             }
                         }
                         else
                         {
-                            // bad doc ouid
+                            // wrong permissions
                             out.println("<html>");
                             out.println("<head>");
                             out.println("<title>File Update</title>");
                             out.println("</head>");
                             out.println("<body>");
-                            out.println("<h1>Error parsing form data...</h1>");
+                            out.println("<h1>Document owner is invalid...</h1>");
                             out.println("</body>");
                             out.println("</html>");
-                            response.setHeader("Refresh", "5;user.jsp");
+                            response.setHeader("Refresh", "5;FileUpdatePage");
                         }
+
+
                     }
                     else
                     {
@@ -344,7 +364,7 @@ public class FileUpdate extends HttpServlet
                         out.println("<h1>You are not a valid user...</h1>");
                         out.println("</body>");
                         out.println("</html>");
-                        response.setHeader("Refresh", "5;user.jsp");
+                        response.setHeader("Refresh", "5;FileUpdatePage");
                     }
 
                     userStmt.close();
@@ -361,7 +381,7 @@ public class FileUpdate extends HttpServlet
                     out.println("<h1>Error accessing document information...</h1>");
                     out.println("</body>");
                     out.println("</html>");
-                    response.setHeader("Refresh", "5;user.jsp");
+                    response.setHeader("Refresh", "5;FileUpdatePage");
                 }
             }
             catch (Exception e)
@@ -375,7 +395,7 @@ public class FileUpdate extends HttpServlet
                 out.println("<h1>Error uploading document or data...</h1>");
                 out.println("</body>");
                 out.println("</html>");
-                response.setHeader("Refresh", "5;user.jsp");
+                response.setHeader("Refresh", "5;FileUpdatePage");
             }
         }
 

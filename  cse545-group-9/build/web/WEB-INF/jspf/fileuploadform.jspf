@@ -5,15 +5,24 @@
         </tr>
         <tr>
             <td>Enter Title:</td>
-            <td><input name="title" type="text"</td>
+            <td><input name="title" type="text" /></td>
         </tr>
         <tr>
             <td>Enter Author:</td>
-            <td><input name="author" type="text"</td>
+            <td><input name="author" type="text" /></td>
         </tr>
         <tr>
             <td>Enter Department:</td>
-            <td><input name="dept" type="text"</td>
+            <td>
+                <select name="dept" type="text">
+                    <option value="HR">HR</option>
+                    <option value="LS">LS</option>
+                    <option value="IT">IT</option>
+                    <option value="SP">SP</option>
+                    <option value="RD">RD</option>
+                    <option value="FN">FN</option>
+                </select>
+            </td>
         </tr>
         <tr>
             <td>Choose the file To Upload:</td>

@@ -18,7 +18,7 @@ import javax.naming.*;
  *
  * @author Administrator
  */
-public class FileDownloadPage extends HttpServlet
+public class FileUnlockPage extends HttpServlet
 {
     private InitialContext ctx;
     private DataSource ds;
@@ -57,7 +57,7 @@ public class FileDownloadPage extends HttpServlet
         {
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>File Download Page</title>");
+            out.println("<title>File Unlock Page</title>");
             out.println("</head>");
             out.println("<body>");
 
@@ -96,20 +96,21 @@ public class FileDownloadPage extends HttpServlet
                     if (userIsManager)
                     {
                         // share, own, dept
-                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE (A.ouid=" + uid + ") OR (A.dept='" + userDept + "')";
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid;
+                        //select * from docs D where D.ouid=1 AND not exists (select * from locked L where D.did=L.ldid)
+                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";;
                     }
                     else if (userIsRegEmp)
                     {
                         // share, own
                         //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
-                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid;
+                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
                     }
                     else if (userIsGuest)
                     {
                         // share
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid;
+                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
                     }
                     else
                     {
@@ -118,8 +119,8 @@ public class FileDownloadPage extends HttpServlet
 
                     docRs = docStmt.executeQuery(docQuery);
                     shareRs = shareStmt.executeQuery(shareQuery);
-                    
-                    out.println("<form action=\"FileDownload\" method=POST>");
+
+                    out.println("<form action=\"FileUnlock\" method=POST>");
                     out.println("<table><th>Owned</th>");
                     out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
 
@@ -150,7 +151,7 @@ public class FileDownloadPage extends HttpServlet
                                 + "<input type=\"radio\" name=\"title\" value=\"" + shareRs.getString("title") + "\"></td>");
                         out.println("</tr>");
                     }
-                    
+
                     out.println("<tr><td><input type=submit value=submit /></td></tr>");
                     out.println("</table>");
                     out.println("</form>");
@@ -163,8 +164,9 @@ public class FileDownloadPage extends HttpServlet
             catch (Exception e)
             {
                 // SQL Error
+                e.printStackTrace();
             }
-            
+
             out.println("<a href=\"user.jsp\" >Return to User Page</a>");
             out.println("</body>");
             out.println("</html>");
