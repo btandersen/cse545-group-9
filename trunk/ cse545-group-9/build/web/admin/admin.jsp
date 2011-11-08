@@ -13,7 +13,8 @@
     </head>
     <body>
         <h1>Admin Page</h1>
-        <a href="UpdateUserPage">Update a user</a>
+        <p><a href="UpdateUserPage">Update or delete a user</a></p>
+        <p><a href="AdminLogPage">See file access history</a></p>
         <%@include file="/WEB-INF/jspf/logoutform.jspf" %>
     </body>
 </html>

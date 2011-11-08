@@ -149,6 +149,8 @@ public class FileDownload extends HttpServlet
                                 }
 
                                 result = true;
+                                docRs.updateTimestamp("lastAccess", (new Timestamp((new GregorianCalendar()).getTimeInMillis())));
+                                docRs.updateRow();
                             }
                             else
                             {
@@ -250,11 +252,11 @@ public class FileDownload extends HttpServlet
         try
         {
             Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result,time) VALUES ('"
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result) VALUES ('"
                     + user + "','"
                     + title + "','"
                     + "read','"
-                    + String.valueOf(result) + "','" + ((new Date((new GregorianCalendar()).getTimeInMillis())).toString()) + "')";
+                    + String.valueOf(result) + "')";
             logStmt.executeUpdate(logQuery);
             logStmt.close();
         }

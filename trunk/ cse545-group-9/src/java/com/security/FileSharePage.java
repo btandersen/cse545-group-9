@@ -76,7 +76,7 @@ public class FileSharePage extends HttpServlet
             String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
                     + " WHERE " + "uname" + " = '" + user + "'";
 
-            String shareQuery = "SELECT * FROM " + "mydb" + "." + "Users WHERE NOT (uname='" + user + "')";
+            String shareQuery = "SELECT * FROM mydb.Users U WHERE (NOT (U.Role=" + Roles.TEMP.ordinal() + ")) AND (NOT (U.uname='" + user + "')) AND (NOT EXISTS(SELECT * FROM mydb.Groups G WHERE G.groupid='appadmin' AND G.uname=U.uname))";
 
             String docQuery = null;
 
@@ -148,6 +148,7 @@ public class FileSharePage extends HttpServlet
             catch (Exception e)
             {
                 // SQL Error
+                out.println("<p>Error retrieving data...</p>");
             }
 
             out.println("<a href=\"user.jsp\" >Return to User Page</a>");

@@ -84,6 +84,10 @@
         <servlet-name>DeleteUser</servlet-name>
         <servlet-class>com.security.DeleteUser</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AdminLogPage</servlet-name>
+        <servlet-class>com.security.AdminLogPage</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -169,10 +173,12 @@
         <servlet-name>DeleteUser</servlet-name>
         <url-pattern>/admin/DeleteUser</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminLogPage</servlet-name>
+        <url-pattern>/admin/AdminLogPage</url-pattern>
+    </servlet-mapping>
     <session-config>
-        <session-timeout>
-            30
-        </session-timeout>
+        <session-timeout>5</session-timeout>
     </session-config>
     <security-constraint>
         <display-name>Admin</display-name>

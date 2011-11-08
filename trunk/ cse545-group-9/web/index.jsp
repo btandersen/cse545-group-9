@@ -20,7 +20,7 @@
         <%@include file="WEB-INF/jspf/loginform.jspf" %>
         <h2>Create New User Request</h2>
         <p>
-            Please enter your username and password to access the application...
+            Please enter your information below to access the application...
         </p>
         <%@include file="WEB-INF/jspf/newuserform.jspf" %>
     </body>

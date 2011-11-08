@@ -161,23 +161,24 @@ public class FileLockPage extends HttpServlet
                 else
                 {
                     // invalid user
+                    out.println("<p>Error processing your user credentials...</p>");
                 }
             }
             catch (Exception e)
             {
                 // SQL Error
-                e.printStackTrace();
+                out.println("<p>Error encountered accessing data...</p>");
             }
-
-            out.println("<a href=\"user.jsp\" >Return to User Page</a>");
-            out.println("</body>");
-            out.println("</html>");
         }
         catch (Exception e)
         {
+            out.println("<p>Error encountered with displaying results...</p>");
         }
         finally
         {
+            out.println("<a href=\"user.jsp\" >Return to User Page</a>");
+            out.println("</body>");
+            out.println("</html>");
             out.close();
         }
     }

@@ -115,7 +115,7 @@ CREATE  TABLE IF NOT EXISTS `mydb`.`Log` (
   `title` VARCHAR(45) NULL ,
   `action` VARCHAR(45) NULL ,
   `result` VARCHAR(45) NULL ,
-  `time` DATETIME NULL ,
+  `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`idLog`) )
 ENGINE = InnoDB;
 

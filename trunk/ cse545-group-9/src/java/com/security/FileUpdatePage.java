@@ -98,20 +98,20 @@ public class FileUpdatePage extends HttpServlet
                     if (userIsManager)
                     {
                         // share, own, dept
-                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE (A.ouid=" + uid + ") OR (A.dept='" + userDept + "')";
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
+                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "'))";
+                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
                     }
                     else if (userIsRegEmp)
                     {
                         // share, own
-                        //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
-                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
+
+                        docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND A.ouid=" + uid;
+                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
                     }
                     else if (userIsGuest)
                     {
                         // share
-                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
+                        shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
                     }
                     else
                     {
@@ -155,26 +155,26 @@ public class FileUpdatePage extends HttpServlet
                     out.println("<FORM enctype=\"multipart/form-data\" action=\"FileUpdate\" method=POST>");
                     out.println("<table border=\"0\">");
                     out.println("<tr><td colspan=\"2\">File Update</td></tr>");
-                    
+
                     docRs.beforeFirst();
                     shareRs.beforeFirst();
-                    
+
                     out.println("<tr><td>Select File to Update:</td><td><select name=\"title\">");
-                    
+
                     while (docRs.next())
                     {
                         out.println("<option value=\"" + docRs.getString("title") + "\">" + docRs.getString("title") + "</option>");
                     }
-                    
+
                     while (shareRs.next())
                     {
                         out.println("<option value=\"" + shareRs.getString("title") + "\">" + shareRs.getString("title") + "</option>");
                     }
-                    
+
                     out.println("</select></td></tr>");
-                    
+
                     //String deptSet = "HR,LS,IT,SP,RD,FN";
-                    
+
                     out.println("<tr><td>Enter New Title:</td><td><input name=\"newtitle\" type=\"text\" /></td></tr>");
                     out.println("<tr><td>Enter New Author:</td><td><input name=\"newauthor\" type=\"text\" /></td></tr>");
                     out.println("<tr><td>Enter New Department:</td><td><select name=\"newdept\" type=\"text\">"
@@ -193,13 +193,15 @@ public class FileUpdatePage extends HttpServlet
                 else
                 {
                     // invalid user
+                    out.println("<p>Invalid user</p>");
                 }
             }
             catch (Exception e)
             {
                 // SQL Error
+                out.println("<p>SQL Error</p>");
             }
-            
+
             out.println("<a href=\"user.jsp\" >Return to User Page</a>");
             out.println("</body>");
             out.println("</html>");
