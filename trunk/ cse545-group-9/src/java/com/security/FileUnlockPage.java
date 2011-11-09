@@ -101,6 +101,9 @@ public class FileUnlockPage extends HttpServlet
                         //select * from docs D where D.ouid=1 AND not exists (select * from locked L where D.did=L.ldid)
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
                         shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+
+                        docRs = docStmt.executeQuery(docQuery);
+                        shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else if (userIsRegEmp)
                     {
@@ -108,37 +111,44 @@ public class FileUnlockPage extends HttpServlet
                         //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
                         shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+
+                        docRs = docStmt.executeQuery(docQuery);
+                        shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else if (userIsGuest)
                     {
                         // share
                         shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+
+                        shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else
                     {
                         // invalid role
                     }
 
-                    docRs = docStmt.executeQuery(docQuery);
-                    shareRs = shareStmt.executeQuery(shareQuery);
-
                     out.println("<form action=\"FileUnlock\" method=POST>");
-                    out.println("<table><th>Owned</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
 
-                    while (docRs.next())
+                    if (userIsManager || userIsRegEmp)
                     {
-                        out.println("<tr>");
-                        out.println("<td>" + docRs.getString("title") + "</td><td>"
-                                + docRs.getString("auth") + "</td><td>"
-                                + docRs.getString("dept") + "</td><td>"
-                                + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
-                                + docRs.getString("filename") + "</td><td>"
-                                + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
-                        out.println("</tr>");
+                        out.println("<table><th>Owned</th>");
+                        out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
+
+                        while (docRs.next())
+                        {
+                            out.println("<tr>");
+                            out.println("<td>" + docRs.getString("title") + "</td><td>"
+                                    + docRs.getString("auth") + "</td><td>"
+                                    + docRs.getString("dept") + "</td><td>"
+                                    + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
+                                    + docRs.getString("filename") + "</td><td>"
+                                    + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
+                            out.println("</tr>");
+                        }
+
+                        out.println("</table>");
                     }
 
-                    out.println("</table>");
                     out.println("<table><th>Shared</th>");
                     out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
 
@@ -161,23 +171,24 @@ public class FileUnlockPage extends HttpServlet
                 else
                 {
                     // invalid user
+                    out.println("<p>Error processing your user credentials...</p>");
                 }
             }
             catch (Exception e)
             {
                 // SQL Error
-                e.printStackTrace();
+                out.println("<p>Error encountered accessing data...</p>");
             }
-
-            out.println("<a href=\"user.jsp\" >Return to User Page</a>");
-            out.println("</body>");
-            out.println("</html>");
         }
         catch (Exception e)
         {
+            out.println("<p>Error encountered with displaying results...</p>");
         }
         finally
         {
+            out.println("<a href=\"user.jsp\" >Return to User Page</a>");
+            out.println("</body>");
+            out.println("</html>");
             out.close();
         }
     }

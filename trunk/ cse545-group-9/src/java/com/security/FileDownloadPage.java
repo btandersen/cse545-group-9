@@ -100,43 +100,53 @@ public class FileDownloadPage extends HttpServlet
                         // share, own, dept
                         docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE (A.ouid=" + uid + ") OR (A.dept='" + userDept + "')";
                         shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
+                    
+                    docRs = docStmt.executeQuery(docQuery);
+                    shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else if (userIsRegEmp)
                     {
                         // share, own
                         docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
                         shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
+                    
+                    docRs = docStmt.executeQuery(docQuery);
+                    shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else if (userIsGuest)
                     {
                         // share
                         shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
+
+                        shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else
                     {
                         // invalid role
                     }
 
-                    docRs = docStmt.executeQuery(docQuery);
-                    shareRs = shareStmt.executeQuery(shareQuery);
-                    
                     out.println("<form action=\"FileDownload\" method=POST>");
-                    out.println("<table><th>Owned</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
 
-                    while (docRs.next())
+                    if (userIsManager || userIsRegEmp)
                     {
-                        out.println("<tr>");
-                        out.println("<td>" + docRs.getString("title") + "</td><td>"
-                                + docRs.getString("auth") + "</td><td>"
-                                + docRs.getString("dept") + "</td><td>"
-                                + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
-                                + docRs.getString("filename") + "</td><td>"
-                                + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
-                        out.println("</tr>");
+                        out.println("<table><th>Owned</th>");
+                        out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
+
+                        while (docRs.next())
+                        {
+                            out.println("<tr>");
+                            out.println("<td>" + docRs.getString("title") + "</td><td>"
+                                    + docRs.getString("auth") + "</td><td>"
+                                    + docRs.getString("dept") + "</td><td>"
+                                    + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
+                                    + docRs.getString("filename") + "</td><td>"
+                                    + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
+                            out.println("</tr>");
+                        }
+
+                        out.println("</table>");
                     }
 
-                    out.println("</table>");
                     out.println("<table><th>Shared</th>");
                     out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
 
@@ -151,7 +161,7 @@ public class FileDownloadPage extends HttpServlet
                                 + "<input type=\"radio\" name=\"title\" value=\"" + shareRs.getString("title") + "\"></td>");
                         out.println("</tr>");
                     }
-                    
+
                     out.println("<tr><td><input type=\"submit\" value=\"Submit\" /></td></tr>");
                     out.println("</table>");
                     out.println("</form>");
@@ -165,13 +175,15 @@ public class FileDownloadPage extends HttpServlet
             {
                 // SQL Error
             }
-            
+
             out.println("<a href=\"user.jsp\" >Return to User Page</a>");
             out.println("</body>");
             out.println("</html>");
         }
         catch (Exception e)
         {
+            // Output stream error
+            response.setHeader("Refresh", "2;user.jsp");
         }
         finally
         {

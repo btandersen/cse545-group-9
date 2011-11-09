@@ -76,7 +76,7 @@ public class FileDeletePage extends HttpServlet
 
             String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
                     + " WHERE " + "uname" + " = '" + uname + "'";
-            
+
             String docQuery = null;
 
             try
@@ -91,48 +91,58 @@ public class FileDeletePage extends HttpServlet
 
                     boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
                     boolean userIsRegEmp = (userRole == Roles.REG_EMP.ordinal());
+                    boolean userIsGuest = (userRole == Roles.GUEST.ordinal());
 
-                    if (userIsManager)
+                    if (!userIsGuest)
                     {
-                        // own, dept
-                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
-                      
-                    }
-                    else if (userIsRegEmp)
-                    {
-                        //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
-                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+                        if (userIsManager)
+                        {
+                            // own, dept
+                            docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+
+                        }
+                        else if (userIsRegEmp)
+                        {
+                            //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
+                            docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+                        }
+                        else
+                        {
+                            // invalid role
+                        }
+
+                        docRs = docStmt.executeQuery(docQuery);
+
+                        out.println("<form action=\"FileDelete\" method=POST>");
+                        out.println("<table><th>Owned</th>");
+                        out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
+
+                        while (docRs.next())
+                        {
+                            out.println("<tr>");
+                            out.println("<td>" + docRs.getString("title") + "</td><td>"
+                                    + docRs.getString("auth") + "</td><td>"
+                                    + docRs.getString("dept") + "</td><td>"
+                                    + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
+                                    + docRs.getString("filename") + "</td><td>"
+                                    + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
+                            out.println("</tr>");
+                        }
+
+                        out.println("<tr><td><input type=\"submit\" value=\"Submit\" /></td></tr>");
+                        out.println("</table>");
+                        out.println("</form>");
                     }
                     else
                     {
-                        // invalid role
+                        // user is guest
+                        out.println("<h1>Guests are not allowed to delete files...</h1>");
                     }
-
-                    docRs = docStmt.executeQuery(docQuery);
-
-                    out.println("<form action=\"FileDelete\" method=POST>");
-                    out.println("<table><th>Owned</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
-
-                    while (docRs.next())
-                    {
-                        out.println("<tr>");
-                        out.println("<td>" + docRs.getString("title") + "</td><td>"
-                                + docRs.getString("auth") + "</td><td>"
-                                + docRs.getString("dept") + "</td><td>"
-                                + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
-                                + docRs.getString("filename") + "</td><td>"
-                                + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
-                        out.println("</tr>");
-                    }
-
-                    out.println("<tr><td><input type=\"submit\" value=\"Submit\" /></td></tr>");
-                    out.println("</table>");
-                    out.println("</form>");
                 }
                 else
                 {
                     // invalid user
+                    out.println("<h1>You are not a valid user...</h1>");
                 }
             }
             catch (Exception e)
@@ -147,6 +157,8 @@ public class FileDeletePage extends HttpServlet
         }
         catch (Exception e)
         {
+            // Output stream error
+            response.setHeader("Refresh", "2;user.jsp");
         }
         finally
         {

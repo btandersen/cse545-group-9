@@ -287,6 +287,19 @@ public class FileUpload extends HttpServlet
                             response.setHeader("Refresh", "5;fileupload.jsp");
                         }
                     }
+                    else
+                    {
+                        // user is a guest
+                        out.println("<html>");
+                        out.println("<head>");
+                        out.println("<title>File Upload</title>");
+                        out.println("</head>");
+                        out.println("<body>");
+                        out.println("<h1>Guests do not have permission to upload files...</h1>");
+                        out.println("</body>");
+                        out.println("</html>");
+                        response.setHeader("Refresh", "5;fileupload.jsp");
+                    }
                 }
                 else
                 {
@@ -316,6 +329,19 @@ public class FileUpload extends HttpServlet
                 out.println("</html>");
                 response.setHeader("Refresh", "5;fileupload.jsp");
             }
+        }
+        else
+        {
+            // invalid form submitted
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>File Upload</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>The form submitted was not valid...</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            response.setHeader("Refresh", "5;fileupload.jsp");
         }
 
         // log result
