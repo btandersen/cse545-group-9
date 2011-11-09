@@ -111,7 +111,7 @@ public class FileDeletePage extends HttpServlet
                         {
                             //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
                             docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
-                                    + "FROM Docs A "
+                                    + "FROM Docs A, Users U  "
                                     + "WHERE A.ouid=" + uid + " "
                                     + "AND U.uid=A.ouid "
                                     + "AND (NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)"
@@ -134,7 +134,7 @@ public class FileDeletePage extends HttpServlet
                             out.println("<td>" + docRs.getString("title") + "</td><td>"
                                     + docRs.getString("auth") + "</td><td>"
                                     + docRs.getString("dept") + "</td><td>"
-                                    + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
+                                    + docRs.getString("uname") + "</td><td>"
                                     + docRs.getString("filename") + "</td><td>"
                                     + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
                             out.println("</tr>");
