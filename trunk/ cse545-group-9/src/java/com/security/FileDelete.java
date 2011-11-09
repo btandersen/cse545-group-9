@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 import java.sql.*;
-import java.util.GregorianCalendar;
+import java.util.regex.Pattern;
 import javax.sql.*;
 import javax.naming.*;
 
@@ -53,90 +53,111 @@ public class FileDelete extends HttpServlet
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
 
-        try
+        boolean cleanInput = false;
+        String inputRegex = "[\\w\\s]{1,45}+";
+        Pattern inputPattern = Pattern.compile(inputRegex);
+        cleanInput = (inputPattern.matcher(title).matches());
+
+        if (cleanInput)
         {
-            Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement ownerStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement lockStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-
-            ResultSet userRs = null;
-            ResultSet docRs = null;
-            ResultSet ownerRs = null;
-            ResultSet lockRs = null;
-
-            String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                    + " WHERE " + "uname" + " = '" + user + "'";
-
-            String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
-                    + " WHERE " + "title" + " = '" + title + "'";
-
-            userRs = userStmt.executeQuery(userQuery);
-            docRs = docStmt.executeQuery(docQuery);
-
-            if (userRs.next() && docRs.next())
+            try
             {
-                int userRole = userRs.getInt("role");
-                String uid = userRs.getString("uid");
-                String did = docRs.getString("did");
-                String ouid = docRs.getString("ouid");
-                String userDept = userRs.getString("dept");
-                String docDept = docRs.getString("dept");
+                Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement ownerStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement lockStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-                String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                        + " WHERE " + "uid" + " = " + ouid + "";
+                ResultSet userRs = null;
+                ResultSet docRs = null;
+                ResultSet ownerRs = null;
+                ResultSet lockRs = null;
 
-                String lockQuery = "SELECT * FROM " + "mydb" + "." + "Locked"
-                        + " WHERE " + "ldid" + " = " + did + "";
+                String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                        + " WHERE " + "uname" + " = '" + user + "'";
 
-                ownerRs = ownerStmt.executeQuery(ownerQuery);
-                lockRs = lockStmt.executeQuery(lockQuery);
+                String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
+                        + " WHERE " + "title" + " = '" + title + "'";
 
-                if (ownerRs.next())
+                userRs = userStmt.executeQuery(userQuery);
+                docRs = docStmt.executeQuery(docQuery);
+
+                if (userRs.next() && docRs.next())
                 {
-                    int ownerRole = ownerRs.getInt("role");
+                    int userRole = userRs.getInt("role");
+                    String uid = userRs.getString("uid");
+                    String did = docRs.getString("did");
+                    String ouid = docRs.getString("ouid");
+                    String userDept = userRs.getString("dept");
+                    String docDept = docRs.getString("dept");
 
-                    boolean userIsOwner = uid.equals(ouid);
-                    boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
-                    boolean userMeetsRoleReq = (userRole >= ownerRole);
-                    boolean userMeetsDeptReq = (userDept.contains(docDept));
-                    boolean locked = false;
-                    boolean userHasLock = false;
+                    String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                            + " WHERE " + "uid" + " = " + ouid + "";
 
-                    if (lockRs.next())
+                    String lockQuery = "SELECT * FROM " + "mydb" + "." + "Locked"
+                            + " WHERE " + "ldid" + " = " + did + "";
+
+                    ownerRs = ownerStmt.executeQuery(ownerQuery);
+                    lockRs = lockStmt.executeQuery(lockQuery);
+
+                    if (ownerRs.next())
                     {
-                        locked = true;
-                        userHasLock = uid.equals(String.valueOf(lockRs.getInt("luid")));
-                    }
+                        int ownerRole = ownerRs.getInt("role");
 
-                    if (userRole > Roles.GUEST.ordinal())
-                    {
-                        if (userIsOwner || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
+                        boolean userIsOwner = uid.equals(ouid);
+                        boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
+                        boolean userMeetsRoleReq = (userRole >= ownerRole);
+                        boolean userMeetsDeptReq = (userDept.contains(docDept));
+                        boolean locked = false;
+                        boolean userHasLock = false;
+
+                        if (lockRs.next())
                         {
-                            if (!locked || (locked && userHasLock))
+                            locked = true;
+                            userHasLock = uid.equals(String.valueOf(lockRs.getInt("luid")));
+                        }
+
+                        if (userRole > Roles.GUEST.ordinal())
+                        {
+                            if (userIsOwner || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
                             {
-                                docRs.deleteRow();
-                                result = true;
-                                
-                                out.println("<html>");
-                                out.println("<head>");
-                                out.println("<title>File Delete</title>");
-                                out.println("</head>");
-                                out.println("<body>");
-                                out.println("<h1>File deleted successfully...</h1>");
-                                out.println("</body>");
-                                out.println("</html>");
-                                response.setHeader("Refresh", "5;FileDeletePage");
+                                if (!locked || (locked && userHasLock))
+                                {
+                                    docRs.deleteRow();
+                                    result = true;
+
+                                    out.println("<html>");
+                                    out.println("<head>");
+                                    out.println("<title>File Delete</title>");
+                                    out.println("</head>");
+                                    out.println("<body>");
+                                    out.println("<h1>File deleted successfully...</h1>");
+                                    out.println("</body>");
+                                    out.println("</html>");
+                                    response.setHeader("Refresh", "5;FileDeletePage");
+                                }
+                                else
+                                {
+                                    // locked by someone else
+                                    out.println("<html>");
+                                    out.println("<head>");
+                                    out.println("<title>File Delete</title>");
+                                    out.println("</head>");
+                                    out.println("<body>");
+                                    out.println("<h1>File is locked by another user...</h1>");
+                                    out.println("</body>");
+                                    out.println("</html>");
+                                    response.setHeader("Refresh", "5;FileDeletePage");
+                                }
                             }
                             else
                             {
-                                // locked by someone else
+                                // not proper permission
                                 out.println("<html>");
                                 out.println("<head>");
                                 out.println("<title>File Delete</title>");
                                 out.println("</head>");
                                 out.println("<body>");
-                                out.println("<h1>File is locked by another user...</h1>");
+                                out.println("<h1>You do not have permission to delete this file...</h1>");
                                 out.println("</body>");
                                 out.println("</html>");
                                 response.setHeader("Refresh", "5;FileDeletePage");
@@ -144,13 +165,13 @@ public class FileDelete extends HttpServlet
                         }
                         else
                         {
-                            // not proper permission
+                            // user is a guest
                             out.println("<html>");
                             out.println("<head>");
                             out.println("<title>File Delete</title>");
                             out.println("</head>");
                             out.println("<body>");
-                            out.println("<h1>You do not have permission to delete this file...</h1>");
+                            out.println("<h1>Guest cannot delete files...</h1>");
                             out.println("</body>");
                             out.println("</html>");
                             response.setHeader("Refresh", "5;FileDeletePage");
@@ -158,13 +179,13 @@ public class FileDelete extends HttpServlet
                     }
                     else
                     {
-                        // user is a guest
+                        // document owner not in db, should not happen
                         out.println("<html>");
                         out.println("<head>");
                         out.println("<title>File Delete</title>");
                         out.println("</head>");
                         out.println("<body>");
-                        out.println("<h1>Guest cannot delete files...</h1>");
+                        out.println("<h1>Invalid document owner...</h1>");
                         out.println("</body>");
                         out.println("</html>");
                         response.setHeader("Refresh", "5;FileDeletePage");
@@ -172,41 +193,41 @@ public class FileDelete extends HttpServlet
                 }
                 else
                 {
-                    // document owner not in db, should not happen
+                    // user or document not in db
                     out.println("<html>");
                     out.println("<head>");
                     out.println("<title>File Delete</title>");
                     out.println("</head>");
                     out.println("<body>");
-                    out.println("<h1>Invalid document owner...</h1>");
+                    out.println("<h1>Invalid user or document...</h1>");
                     out.println("</body>");
                     out.println("</html>");
                     response.setHeader("Refresh", "5;FileDeletePage");
                 }
             }
-            else
+            catch (Exception e)
             {
-                // user or document not in db
+                // SQL error
                 out.println("<html>");
                 out.println("<head>");
                 out.println("<title>File Delete</title>");
                 out.println("</head>");
                 out.println("<body>");
-                out.println("<h1>Invalid user or document...</h1>");
+                out.println("<h1>Error attempting to delete file...</h1>");
                 out.println("</body>");
                 out.println("</html>");
                 response.setHeader("Refresh", "5;FileDeletePage");
             }
         }
-        catch (Exception e)
+        else
         {
-            // SQL error
+            // bad input
             out.println("<html>");
             out.println("<head>");
             out.println("<title>File Delete</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Error attempting to delete file...</h1>");
+            out.println("<h1>Detected invalid input characters in title...</h1>");
             out.println("</body>");
             out.println("</html>");
             response.setHeader("Refresh", "5;FileDeletePage");

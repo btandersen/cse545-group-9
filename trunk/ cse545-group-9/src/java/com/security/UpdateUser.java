@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 
 import java.sql.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.sql.*;
 import javax.naming.*;
 
@@ -63,100 +65,124 @@ public class UpdateUser extends HttpServlet
             String newDept = request.getParameter("newdept");
             String group = request.getParameter("group");
 
-            boolean changeRole = (!newRole.isEmpty()
-                    && (Integer.parseInt(newRole) > Roles.TEMP.ordinal())
-                    && (Integer.parseInt(newRole) <= Roles.OFFICER.ordinal()));
+            boolean cleanInput = false;
+            String inputRegex = "[\\w]{1,45}+";
+            Pattern inputPattern = Pattern.compile(inputRegex);
+            cleanInput = (inputPattern.matcher(userToUpdate).matches()
+                    && inputPattern.matcher(newRole).matches()
+                    && inputPattern.matcher(newDept).matches()
+                    && inputPattern.matcher(group).matches());
 
-            boolean changeDept = (!newDept.isEmpty() && deptSet.contains(newDept));
-
-            Statement userToUpdateStmt = null;
-            Statement groupStmt = null;
-
-            ResultSet userToUpdateRs = null;
-            ResultSet groupRs = null;
-
-            if (request.isUserInRole("admin"))
+            if (cleanInput)
             {
-                if (changeRole)
+                boolean changeRole = (!newRole.isEmpty()
+                        && (Integer.parseInt(newRole) > Roles.TEMP.ordinal())
+                        && (Integer.parseInt(newRole) <= Roles.OFFICER.ordinal()));
+
+                boolean changeDept = (!newDept.isEmpty() && deptSet.contains(newDept));
+
+                Statement userToUpdateStmt = null;
+                Statement groupStmt = null;
+
+                ResultSet userToUpdateRs = null;
+                ResultSet groupRs = null;
+
+                if (request.isUserInRole("admin"))
                 {
-                    if (changeDept)
+                    if (changeRole)
                     {
-                        try
+                        if (changeDept)
                         {
-                            userToUpdateStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-                            groupStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-
-                            String userToUpdateQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                                    + " WHERE " + "uname" + " = '" + userToUpdate + "'";
-
-                            String groupQuery = "SELECT * FROM mydb.Groups WHERE uname='" + userToUpdate + "'";
-
-                            userToUpdateRs = userToUpdateStmt.executeQuery(userToUpdateQuery);
-                            groupRs = groupStmt.executeQuery(groupQuery);
-
-                            if (newRole.equals(String.valueOf(Roles.GUEST.ordinal())))
+                            try
                             {
-                                newDept = "GUEST";
-                                group = "appuser";
-                            }
+                                userToUpdateStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                                groupStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-                            if (userToUpdateRs.next())
-                            {
-                                userToUpdateRs.updateInt("role", Integer.parseInt(newRole));
-                                userToUpdateRs.updateString("dept", newDept);
-                                userToUpdateRs.updateRow();
+                                String userToUpdateQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                                        + " WHERE " + "uname" + " = '" + userToUpdate + "'";
 
-                                if (groupRs.next())
+                                String groupQuery = "SELECT * FROM mydb.Groups WHERE uname='" + userToUpdate + "'";
+
+                                userToUpdateRs = userToUpdateStmt.executeQuery(userToUpdateQuery);
+                                groupRs = groupStmt.executeQuery(groupQuery);
+
+                                if (newRole.equals(String.valueOf(Roles.GUEST.ordinal())))
                                 {
-                                    groupRs.updateString("groupid", group);
+                                    newDept = "GUEST";
+                                    group = "appuser";
+                                }
+
+                                if (userToUpdateRs.next())
+                                {
+                                    userToUpdateRs.updateInt("role", Integer.parseInt(newRole));
+                                    userToUpdateRs.updateString("dept", newDept);
+                                    userToUpdateRs.updateRow();
+
+                                    if (groupRs.next())
+                                    {
+                                        groupRs.updateString("groupid", group);
+                                    }
+                                    else
+                                    {
+                                        groupRs.moveToInsertRow();
+                                        groupRs.updateString("groupid", group);
+                                        groupRs.updateString("uname", userToUpdate);
+                                        groupRs.insertRow();
+                                    }
+
+                                    out.println("<html>");
+                                    out.println("<head>");
+                                    out.println("<title>Update User</title>");
+                                    out.println("</head>");
+                                    out.println("<body>");
+                                    out.println("<h1>User updated sucessfully...</h1>");
+                                    out.println("</body>");
+                                    out.println("</html>");
+                                    response.setHeader("Refresh", "5;UpdateUserPage");
                                 }
                                 else
                                 {
-                                    groupRs.moveToInsertRow();
-                                    groupRs.updateString("groupid", group);
-                                    groupRs.updateString("uname", userToUpdate);
-                                    groupRs.insertRow();
+                                    // Invalid user to update
+                                    out.println("<html>");
+                                    out.println("<head>");
+                                    out.println("<title>Update User</title>");
+                                    out.println("</head>");
+                                    out.println("<body>");
+                                    out.println("<h1>Invalid user to update...</h1>");
+                                    out.println("</body>");
+                                    out.println("</html>");
+                                    response.setHeader("Refresh", "5;UpdateUserPage");
                                 }
-
-                                out.println("<html>");
-                                out.println("<head>");
-                                out.println("<title>Update User</title>");
-                                out.println("</head>");
-                                out.println("<body>");
-                                out.println("<h1>User updated sucessfully...</h1>");
-                                out.println("</body>");
-                                out.println("</html>");
-                                response.setHeader("Refresh", "5;UpdateUserPage");
                             }
-                            else
+                            catch (Exception e)
                             {
-                                // Invalid user to update
+                                // SQL Error
                                 out.println("<html>");
                                 out.println("<head>");
                                 out.println("<title>Update User</title>");
                                 out.println("</head>");
                                 out.println("<body>");
-                                out.println("<h1>Invalid user to update...</h1>");
+                                out.println("<h1>User updated failed...</h1>");
                                 out.println("</body>");
                                 out.println("</html>");
                                 response.setHeader("Refresh", "5;UpdateUserPage");
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            // SQL Error
-                            out.println("<html>");
-                            out.println("<head>");
-                            out.println("<title>Update User</title>");
-                            out.println("</head>");
-                            out.println("<body>");
-                            out.println("<h1>User updated failed...</h1>");
-                            out.println("</body>");
-                            out.println("</html>");
-                            response.setHeader("Refresh", "5;UpdateUserPage");
                         }
                     }
                 }
+            }
+            else
+            {
+                // dirty input
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>Update User</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>Improper input detected...</h1>");
+                out.println("</body>");
+                out.println("</html>");
+                response.setHeader("Refresh", "5;UpdateUserPage");
             }
         }
         catch (Exception e)
@@ -172,7 +198,7 @@ public class UpdateUser extends HttpServlet
             out.println("</html>");
             response.setHeader("Refresh", "5;UpdateUserPage");
         }
-        
+
         out.close();
     }
 

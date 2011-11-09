@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.sql.*;
-import java.util.GregorianCalendar;
+import java.util.regex.Pattern;
 import javax.sql.*;
 import javax.naming.*;
 
@@ -59,8 +59,14 @@ public class FileLock extends HttpServlet
 
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
+        
+        boolean cleanInput = false;
+        String inputRegex = "[\\w\\s]{1,45}+";
+        Pattern inputPattern = Pattern.compile(inputRegex);
+        cleanInput = (inputPattern.matcher(title).matches());
 
-        try
+        if (cleanInput)
+        {try
         {
             Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
             Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
@@ -196,6 +202,20 @@ public class FileLock extends HttpServlet
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Error attempting to lock file...</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            response.setHeader("Refresh", "5;FileLockPage");
+        }
+        }
+        else
+        {
+            // bad input
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>File Lock</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Detected invalid input characters for title...</h1>");
             out.println("</body>");
             out.println("</html>");
             response.setHeader("Refresh", "5;FileLockPage");
