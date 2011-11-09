@@ -490,7 +490,7 @@ public class FileUpdate extends HttpServlet
         try
         {
             Statement logStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            String logQuery = "INSERT INTO mydb.Log (uname,title,action) VALUES ('"
+            String logQuery = "INSERT INTO mydb.Log (uname,title,action,result) VALUES ('"
                     + user + "','"
                     + title + "','"
                     + "update','"
