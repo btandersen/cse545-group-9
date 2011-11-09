@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.sql.*;
-import java.util.GregorianCalendar;
+import java.util.regex.Pattern;
 import javax.sql.*;
 import javax.naming.*;
 
@@ -60,105 +60,125 @@ public class FileUnlock extends HttpServlet
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
 
-        try
+        boolean cleanInput = false;
+        String inputRegex = "[\\w\\s]{1,45}+";
+        Pattern inputPattern = Pattern.compile(inputRegex);
+        cleanInput = (inputPattern.matcher(title).matches());
+
+        if (cleanInput)
         {
-            Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-
-
-            ResultSet userRs = null;
-            ResultSet docRs = null;
-
-
-            String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                    + " WHERE " + "uname" + " = '" + user + "'";
-
-            String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
-                    + " WHERE " + "title" + " = '" + title + "'";
-
-            userRs = userStmt.executeQuery(userQuery);
-            docRs = docStmt.executeQuery(docQuery);
-
-            if (userRs.next() && docRs.next())
+            try
             {
-                String luid = String.valueOf(userRs.getInt("uid"));
-                String ldid = String.valueOf(docRs.getInt("did"));
+                Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-                try
+
+                ResultSet userRs = null;
+                ResultSet docRs = null;
+
+
+                String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                        + " WHERE " + "uname" + " = '" + user + "'";
+
+                String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
+                        + " WHERE " + "title" + " = '" + title + "'";
+
+                userRs = userStmt.executeQuery(userQuery);
+                docRs = docStmt.executeQuery(docQuery);
+
+                if (userRs.next() && docRs.next())
                 {
-                    Statement lockStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-                    String lockQuery = "SELECT * FROM mydb.Locked WHERE "
-                            + "ldid=" + ldid + " AND luid=" + luid;
+                    String luid = String.valueOf(userRs.getInt("uid"));
+                    String ldid = String.valueOf(docRs.getInt("did"));
 
-                    ResultSet lockRs = lockStmt.executeQuery(lockQuery);
-
-                    if (lockRs.next())
+                    try
                     {
-                        lockRs.deleteRow();
-                        result = true;
+                        Statement lockStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                        String lockQuery = "SELECT * FROM mydb.Locked WHERE "
+                                + "ldid=" + ldid + " AND luid=" + luid;
 
+                        ResultSet lockRs = lockStmt.executeQuery(lockQuery);
+
+                        if (lockRs.next())
+                        {
+                            lockRs.deleteRow();
+                            result = true;
+
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Unlock</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>File unlocked sucessfully...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;FileUnlockPage");
+                        }
+                        else
+                        {
+                            // user did not have it locked
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Unlock</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>File was not locked by current user...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;FileUnlockPage");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        // lockStmt SQL error
                         out.println("<html>");
                         out.println("<head>");
                         out.println("<title>File Unlock</title>");
                         out.println("</head>");
                         out.println("<body>");
-                        out.println("<h1>File unlocked sucessfully...</h1>");
+                        out.println("<h1>Error accesing file status...</h1>");
                         out.println("</body>");
                         out.println("</html>");
                         response.setHeader("Refresh", "5;FileUnlockPage");
                     }
-                    else
-                    {
-                        // user did not have it locked
-                        out.println("<html>");
-                        out.println("<head>");
-                        out.println("<title>File Unlock</title>");
-                        out.println("</head>");
-                        out.println("<body>");
-                        out.println("<h1>File was not locked by current user...</h1>");
-                        out.println("</body>");
-                        out.println("</html>");
-                        response.setHeader("Refresh", "5;FileUnlockPage");
-                    }
+
                 }
-                catch (Exception e)
+                else
                 {
-                    // lockStmt SQL error
+                    // bad user or doc
                     out.println("<html>");
                     out.println("<head>");
                     out.println("<title>File Unlock</title>");
                     out.println("</head>");
                     out.println("<body>");
-                    out.println("<h1>Error accesing file status...</h1>");
+                    out.println("<h1>Invalid user or document...</h1>");
                     out.println("</body>");
                     out.println("</html>");
                     response.setHeader("Refresh", "5;FileUnlockPage");
                 }
-
             }
-            else
+            catch (Exception e)
             {
-                // bad user or doc
+                // SQL error
                 out.println("<html>");
                 out.println("<head>");
                 out.println("<title>File Unlock</title>");
                 out.println("</head>");
                 out.println("<body>");
-                out.println("<h1>Invalid user or document...</h1>");
+                out.println("<h1>Error processing request...</h1>");
                 out.println("</body>");
                 out.println("</html>");
                 response.setHeader("Refresh", "5;FileUnlockPage");
             }
         }
-        catch (Exception e)
+        else
         {
-            // SQL error
             out.println("<html>");
             out.println("<head>");
             out.println("<title>File Unlock</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Error processing request...</h1>");
+            out.println("<h1>Detected invalid input characters for title...</h1>");
             out.println("</body>");
             out.println("</html>");
             response.setHeader("Refresh", "5;FileUnlockPage");

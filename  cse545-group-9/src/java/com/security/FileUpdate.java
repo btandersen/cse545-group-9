@@ -210,9 +210,9 @@ public class FileUpdate extends HttpServlet
                             newFilename = docRs.getString("filename");
                         }
 
-                        String titleRegex = "[\\w]{1,45}+";
-                        String authRegex = "[\\w]{1,45}+";
-                        String fileNameRegex = "([\\w\\_-]+\\.([a-zA-Z]{1,4}+)){1,45}";
+                        String titleRegex = "[\\w\\s]{1,45}+";
+                        String authRegex = "[\\w\\s]{1,45}+";
+                        String fileNameRegex = "((^[\\w\\_\\-\\.]+[\\w\\_\\-\\.\\s]*)\\.([a-zA-Z]{1,4}+)){1,45}";
 
                         Pattern titlePattern = Pattern.compile(titleRegex);
                         Pattern authPattern = Pattern.compile(authRegex);

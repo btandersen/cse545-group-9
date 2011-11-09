@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.sql.*;
 import java.util.GregorianCalendar;
+import java.util.regex.Pattern;
 import javax.sql.*;
 import javax.naming.*;
 import javax.servlet.ServletOutputStream;
@@ -32,6 +33,7 @@ public class FileDownload extends HttpServlet
     InitialContext ctx;
     DataSource ds;
     Connection conn;
+
     public void init(ServletConfig config) throws ServletException
     {
         super.init(config);
@@ -65,96 +67,119 @@ public class FileDownload extends HttpServlet
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
 
-        try
+        boolean cleanInput = false;
+        String inputRegex = "[\\w\\s]{1,45}+";
+        Pattern inputPattern = Pattern.compile(inputRegex);
+        cleanInput = (inputPattern.matcher(title).matches());
+
+        if (cleanInput)
         {
-            Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement ownerStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-
-            ResultSet userRs = null;
-            ResultSet docRs = null;
-            ResultSet ownerRs = null;
-            ResultSet shareRs = null;
-
-            String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                    + " WHERE " + "uname" + " = '" + user + "'";
-
-            String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
-                    + " WHERE " + "title" + " = '" + title + "'";
-
-
-
-            userRs = userStmt.executeQuery(userQuery);
-            docRs = docStmt.executeQuery(docQuery);
-
-            if (userRs.next() && docRs.next())
+            try
             {
-                int userRole = userRs.getInt("role");
-                String uid = uid = String.valueOf(userRs.getInt("uid")); //userRs.getString("uid");
-                String did = did = String.valueOf(docRs.getInt("did"));
-                String ouid = docRs.getString("ouid");
-                String userDept = userRs.getString("dept");
-                String docDept = docRs.getString("dept");
-                String filename = docRs.getString("filename");
+                Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement ownerStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-                String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                        + " WHERE " + "uid" + " = " + ouid + "";
+                ResultSet userRs = null;
+                ResultSet docRs = null;
+                ResultSet ownerRs = null;
+                ResultSet shareRs = null;
 
-                String shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
-                        + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "R" + "'";
+                String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                        + " WHERE " + "uname" + " = '" + user + "'";
 
-                ownerRs = ownerStmt.executeQuery(ownerQuery);
-                shareRs = shareStmt.executeQuery(shareQuery);
+                String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
+                        + " WHERE " + "title" + " = '" + title + "'";
 
-                if (ownerRs.next())
+
+
+                userRs = userStmt.executeQuery(userQuery);
+                docRs = docStmt.executeQuery(docQuery);
+
+                if (userRs.next() && docRs.next())
                 {
-                    int ownerRole = ownerRs.getInt("role");
+                    int userRole = userRs.getInt("role");
+                    String uid = uid = String.valueOf(userRs.getInt("uid")); //userRs.getString("uid");
+                    String did = did = String.valueOf(docRs.getInt("did"));
+                    String ouid = docRs.getString("ouid");
+                    String userDept = userRs.getString("dept");
+                    String docDept = docRs.getString("dept");
+                    String filename = docRs.getString("filename");
 
-                    boolean shared = false;
-                    boolean readPerm = false;
+                    String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                            + " WHERE " + "uid" + " = " + ouid + "";
 
-                    if (shareRs.next())
+                    String shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
+                            + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "R" + "'";
+
+                    ownerRs = ownerStmt.executeQuery(ownerQuery);
+                    shareRs = shareStmt.executeQuery(shareQuery);
+
+                    if (ownerRs.next())
                     {
-                        shared = true;
-                        readPerm = shareRs.getString("perm").equals("R");
-                    }
+                        int ownerRole = ownerRs.getInt("role");
 
-                    boolean userIsOwner = uid.equals(ouid);
-                    boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
-                    boolean userMeetsRoleReq = (userRole >= ownerRole);
-                    boolean userMeetsDeptReq = (userDept.contains(docDept));
+                        boolean shared = false;
+                        boolean readPerm = false;
 
-                    if (userRole >= Roles.GUEST.ordinal())
-                    {
-                        if (userIsOwner || (shared && readPerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
+                        if (shareRs.next())
                         {
-                            Blob b = docRs.getBlob("file");
+                            shared = true;
+                            readPerm = shareRs.getString("perm").equals("R");
+                        }
 
-                            if (b != null)
+                        boolean userIsOwner = uid.equals(ouid);
+                        boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
+                        boolean userMeetsRoleReq = (userRole >= ownerRole);
+                        boolean userMeetsDeptReq = (userDept.contains(docDept));
+
+                        if (userRole >= Roles.GUEST.ordinal())
+                        {
+                            if (userIsOwner || (shared && readPerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
                             {
-                                InputStream is = b.getBinaryStream();
-                                BufferedInputStream buf = new BufferedInputStream(is);
-                                //ServletOutputStream
-                                fileOut = response.getOutputStream();
+                                Blob b = docRs.getBlob("file");
 
-                                response.setContentType("application/octet-stream");
-                                response.addHeader("Content-Disposition", "attachment; filename=" + filename);
-                                response.setContentLength((int) b.length());
-
-                                int readBytes = 0;
-                                while ((readBytes = buf.read()) != -1)
+                                if (b != null)
                                 {
-                                    fileOut.write(readBytes);
-                                }
+                                    InputStream is = b.getBinaryStream();
+                                    BufferedInputStream buf = new BufferedInputStream(is);
+                                    //ServletOutputStream
+                                    fileOut = response.getOutputStream();
 
-                                result = true;
-                                docRs.updateTimestamp("lastAccess", (new Timestamp((new GregorianCalendar()).getTimeInMillis())));
-                                docRs.updateRow();
+                                    response.setContentType("application/octet-stream");
+                                    response.addHeader("Content-Disposition", "attachment; filename=" + filename);
+                                    response.setContentLength((int) b.length());
+
+                                    int readBytes = 0;
+                                    while ((readBytes = buf.read()) != -1)
+                                    {
+                                        fileOut.write(readBytes);
+                                    }
+
+                                    result = true;
+                                    docRs.updateTimestamp("lastAccess", (new Timestamp((new GregorianCalendar()).getTimeInMillis())));
+                                    docRs.updateRow();
+                                }
+                                else
+                                {
+                                    // file was null                                
+                                    response.setContentType("text/html;charset=UTF-8");
+                                    out = response.getWriter();
+                                    out.println("<html>");
+                                    out.println("<head>");
+                                    out.println("<title>File Download</title>");
+                                    out.println("</head>");
+                                    out.println("<body>");
+                                    out.println("<h1>Invalid file (file was empty)...</h1>");
+                                    out.println("</body>");
+                                    out.println("</html>");
+                                    response.setHeader("Refresh", "5;FileDownloadPage");
+                                }
                             }
                             else
                             {
-                                // file was null                                
+                                // not proper permission
                                 response.setContentType("text/html;charset=UTF-8");
                                 out = response.getWriter();
                                 out.println("<html>");
@@ -162,7 +187,7 @@ public class FileDownload extends HttpServlet
                                 out.println("<title>File Download</title>");
                                 out.println("</head>");
                                 out.println("<body>");
-                                out.println("<h1>Invalid file (file was empty)...</h1>");
+                                out.println("<h1>You do not have proper permission to download...</h1>");
                                 out.println("</body>");
                                 out.println("</html>");
                                 response.setHeader("Refresh", "5;FileDownloadPage");
@@ -170,7 +195,7 @@ public class FileDownload extends HttpServlet
                         }
                         else
                         {
-                            // not proper permission
+                            // user is a not at least a guest
                             response.setContentType("text/html;charset=UTF-8");
                             out = response.getWriter();
                             out.println("<html>");
@@ -178,7 +203,7 @@ public class FileDownload extends HttpServlet
                             out.println("<title>File Download</title>");
                             out.println("</head>");
                             out.println("<body>");
-                            out.println("<h1>You do not have proper permission to download...</h1>");
+                            out.println("<h1>You do not have proper permission to download (not at least a guest user)...</h1>");
                             out.println("</body>");
                             out.println("</html>");
                             response.setHeader("Refresh", "5;FileDownloadPage");
@@ -186,7 +211,7 @@ public class FileDownload extends HttpServlet
                     }
                     else
                     {
-                        // user is a not at least a guest
+                        // document owner not in db, should not happen
                         response.setContentType("text/html;charset=UTF-8");
                         out = response.getWriter();
                         out.println("<html>");
@@ -194,7 +219,7 @@ public class FileDownload extends HttpServlet
                         out.println("<title>File Download</title>");
                         out.println("</head>");
                         out.println("<body>");
-                        out.println("<h1>You do not have proper permission to download (not at least a guest user)...</h1>");
+                        out.println("<h1>Invalid document owner...</h1>");
                         out.println("</body>");
                         out.println("</html>");
                         response.setHeader("Refresh", "5;FileDownloadPage");
@@ -202,7 +227,7 @@ public class FileDownload extends HttpServlet
                 }
                 else
                 {
-                    // document owner not in db, should not happen
+                    // user or document not in db
                     response.setContentType("text/html;charset=UTF-8");
                     out = response.getWriter();
                     out.println("<html>");
@@ -210,15 +235,15 @@ public class FileDownload extends HttpServlet
                     out.println("<title>File Download</title>");
                     out.println("</head>");
                     out.println("<body>");
-                    out.println("<h1>Invalid document owner...</h1>");
+                    out.println("<h1>Invalid user or document...</h1>");
                     out.println("</body>");
                     out.println("</html>");
                     response.setHeader("Refresh", "5;FileDownloadPage");
                 }
             }
-            else
+            catch (Exception e)
             {
-                // user or document not in db
+                // SQL error
                 response.setContentType("text/html;charset=UTF-8");
                 out = response.getWriter();
                 out.println("<html>");
@@ -226,15 +251,15 @@ public class FileDownload extends HttpServlet
                 out.println("<title>File Download</title>");
                 out.println("</head>");
                 out.println("<body>");
-                out.println("<h1>Invalid user or document...</h1>");
+                out.println("<h1>Error attempting to download...</h1>");
                 out.println("</body>");
                 out.println("</html>");
                 response.setHeader("Refresh", "5;FileDownloadPage");
             }
         }
-        catch (Exception e)
+        else
         {
-            // SQL error
+            // bad input
             response.setContentType("text/html;charset=UTF-8");
             out = response.getWriter();
             out.println("<html>");
@@ -242,7 +267,7 @@ public class FileDownload extends HttpServlet
             out.println("<title>File Download</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Error attempting to download...</h1>");
+            out.println("<h1>Detected invalid input characters in title...</h1>");
             out.println("</body>");
             out.println("</html>");
             response.setHeader("Refresh", "5;FileDownloadPage");

@@ -99,27 +99,51 @@ public class FileUnlockPage extends HttpServlet
                     {
                         // share, own, dept
                         //select * from docs D where D.ouid=1 AND not exists (select * from locked L where D.did=L.ldid)
-                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
-                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+                        //docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+                        //shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
+                                + "FROM Docs A, Users U "
+                                + "WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) "
+                                + "AND U.uid=A.ouid "
+                                + "AND NOT EXISTS (SELECT * FROM Users U WHERE U.role>" + userRole + " AND U.uid=A.ouid) "
+                                + "AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
 
+                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
+                                + "FROM Docs A, Shared B, Users U "
+                                + "WHERE B.perm='L' AND B.sdid=A.did AND B.suid=" + uid + " "
+                                + "AND U.uid=A.ouid "
+                                + "AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
                         docRs = docStmt.executeQuery(docQuery);
                         shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else if (userIsRegEmp)
                     {
                         // share, own
-                        //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
-                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
-                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+                        //docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+                        //shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
+                                + "FROM Docs A, Users U "
+                                + "WHERE ((A.ouid=" + uid + ") "
+                                + "AND U.uid=A.ouid "
+                                + "AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
 
+                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
+                                + "FROM Docs A, Shared B, Users U "
+                                + "WHERE B.perm='L' AND B.sdid=A.did AND B.suid=" + uid + " "
+                                + "AND U.uid=A.ouid "
+                                + "AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
                         docRs = docStmt.executeQuery(docQuery);
                         shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else if (userIsGuest)
                     {
                         // share
-                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
-
+                        //shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
+                        shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
+                                + "FROM Docs A, Shared B, Users U "
+                                + "WHERE B.perm='L' AND B.sdid=A.did AND B.suid=" + uid + " "
+                                + "AND U.uid=A.ouid "
+                                + "AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
                         shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else

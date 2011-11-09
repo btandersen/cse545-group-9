@@ -14,6 +14,7 @@ import java.sql.*;
 import javax.sql.*;
 import javax.naming.*;
 import java.util.GregorianCalendar;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -62,64 +63,86 @@ public class Login extends HttpServlet
 
         String pass = request.getParameter("j_password");
 
-        Statement stmt = null;
+        boolean cleanInput = false;
+        String inputRegex = "[\\w]{1,45}+";
+        Pattern inputPattern = Pattern.compile(inputRegex);
+        cleanInput = (inputPattern.matcher(user).matches());
 
-        String query = "SELECT * FROM " + "mydb" + "." + "Users"
-                + " WHERE " + "uname" + " = '" + user + "'";
-
-        try
+        if (cleanInput)
         {
-            stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+            Statement stmt = null;
 
-            ResultSet rs = stmt.executeQuery(query);
+            String query = "SELECT * FROM " + "mydb" + "." + "Users"
+                    + " WHERE " + "uname" + " = '" + user + "'";
 
-            if (rs.next())
+            try
             {
-                int attempts = rs.getInt("attempts");
-                double lockoutTime = this.getLockOutTime(rs.getTimestamp("time"));
+                stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-                if (attempts < MAX_ATTEMPTS || lockoutTime > MIN_LOCKOUT_TIME)
+                ResultSet rs = stmt.executeQuery(query);
+
+                if (rs.next())
                 {
-                    if (lockoutTime > MIN_LOCKOUT_TIME)
-                    {
-                        rs.updateInt("attempts", 0);
-                        rs.updateRow();
-                        attempts = 0;
-                    }
+                    int attempts = rs.getInt("attempts");
+                    double lockoutTime = this.getLockOutTime(rs.getTimestamp("time"));
 
-                    try
+                    if (attempts < MAX_ATTEMPTS || lockoutTime > MIN_LOCKOUT_TIME)
                     {
-                        request.login(user, pass);
-                        rs.updateInt("attempts", 0);
-                        rs.updateRow();
-                        if (request.isUserInRole("user"))
+                        if (lockoutTime > MIN_LOCKOUT_TIME)
                         {
-                            response.sendRedirect("user/user.jsp");
-                        }
-                        else if (request.isUserInRole("admin"))
-                        {
-                            response.sendRedirect("admin/admin.jsp");
-                        }
-                        else
-                        {
-                            response.sendRedirect("guest.jsp");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        if (attempts < 3)
-                        {
-                            rs.updateInt("attempts", attempts + 1);
+                            rs.updateInt("attempts", 0);
+                            rs.updateRow();
+                            attempts = 0;
                         }
 
-                        rs.updateTimestamp("time", (new Timestamp((new GregorianCalendar()).getTimeInMillis())));
-                        rs.updateRow();
+                        try
+                        {
+                            request.login(user, pass);
+                            rs.updateInt("attempts", 0);
+                            rs.updateRow();
+                            if (request.isUserInRole("user"))
+                            {
+                                response.sendRedirect("user/user.jsp");
+                            }
+                            else if (request.isUserInRole("admin"))
+                            {
+                                response.sendRedirect("admin/admin.jsp");
+                            }
+                            else
+                            {
+                                response.sendRedirect("guest.jsp");
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            if (attempts < 3)
+                            {
+                                rs.updateInt("attempts", attempts + 1);
+                            }
+
+                            rs.updateTimestamp("time", (new Timestamp((new GregorianCalendar()).getTimeInMillis())));
+                            rs.updateRow();
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>Login</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>Invalid user credentials...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;index.jsp");
+                        }
+                    }
+                    else
+                    {
+                        //locked out
                         out.println("<html>");
                         out.println("<head>");
                         out.println("<title>Login</title>");
                         out.println("</head>");
                         out.println("<body>");
-                        out.println("<h1>Invalid user credentials...</h1>");
+                        out.println("<h1>Account locked due to 3 failed attempts...</h1>");
+                        out.println("<h1>Minutes remaining until unlock: " + ((int) Math.ceil(MIN_LOCKOUT_TIME + 1 - lockoutTime)) + "</h1>");
                         out.println("</body>");
                         out.println("</html>");
                         response.setHeader("Refresh", "5;index.jsp");
@@ -127,22 +150,23 @@ public class Login extends HttpServlet
                 }
                 else
                 {
-                    //locked out
+                    //user not in db
                     out.println("<html>");
                     out.println("<head>");
                     out.println("<title>Login</title>");
                     out.println("</head>");
                     out.println("<body>");
-                    out.println("<h1>Account locked due to 3 failed attempts...</h1>");
-                    out.println("<h1>Minutes remaining until unlock: " + ((int)Math.ceil(MIN_LOCKOUT_TIME + 1 - lockoutTime)) + "</h1>");
+                    out.println("<h1>Error encountered...</h1>");
                     out.println("</body>");
                     out.println("</html>");
                     response.setHeader("Refresh", "5;index.jsp");
                 }
+
+                stmt.close();
             }
-            else
+            catch (Exception e)
             {
-                //user not in db
+                // SQL Error
                 out.println("<html>");
                 out.println("<head>");
                 out.println("<title>Login</title>");
@@ -153,18 +177,15 @@ public class Login extends HttpServlet
                 out.println("</html>");
                 response.setHeader("Refresh", "5;index.jsp");
             }
-
-            stmt.close();
         }
-        catch (Exception e)
+        else
         {
-            // SQL Error
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Login</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Error encountered...</h1>");
+            out.println("<h1>Detected invalid characters in username...</h1>");
             out.println("</body>");
             out.println("</html>");
             response.setHeader("Refresh", "5;index.jsp");

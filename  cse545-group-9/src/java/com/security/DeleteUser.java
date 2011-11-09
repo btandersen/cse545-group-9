@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.*;
+import java.util.regex.Pattern;
 import javax.sql.*;
 import javax.naming.*;
 
@@ -63,45 +64,66 @@ public class DeleteUser extends HttpServlet
             {
                 String uname = request.getParameter("uname");
 
-                try
+                boolean cleanInput = false;
+                String inputRegex = "[\\w]{1,45}+";
+                Pattern inputPattern = Pattern.compile(inputRegex);
+                cleanInput = (inputPattern.matcher(uname).matches());
+
+                if (cleanInput)
                 {
-                    Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-
-                    ResultSet userRs = null;
-
-                    String userQuery = "SELECT * FROM " + "mydb" + "." + "Users WHERE uname='" + uname + "'";
-
-                    userRs = userStmt.executeQuery(userQuery);
-
-                    if (userRs.next())
+                    try
                     {
-                        userRs.deleteRow();
+                        Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-                        out.println("<html>");
-                        out.println("<head>");
-                        out.println("<title>Delete User</title>");
-                        out.println("</head>");
-                        out.println("<body>");
-                        out.println("<h1>User deleted sucessfully...</h1>");
-                        out.println("</body>");
-                        out.println("</html>");
-                        response.setHeader("Refresh", "5;UpdateUserPage");
+                        ResultSet userRs = null;
+
+                        String userQuery = "SELECT * FROM " + "mydb" + "." + "Users WHERE uname='" + uname + "'";
+
+                        userRs = userStmt.executeQuery(userQuery);
+
+                        if (userRs.next())
+                        {
+                            userRs.deleteRow();
+
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>Delete User</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>User deleted sucessfully...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;UpdateUserPage");
+                        }
+                        else
+                        {
+                            // bad user to delete
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>Delete User</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>No such user to delete...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;UpdateUserPage");
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        // bad user to delete
+                        // SQL Exception
                         out.println("<html>");
                         out.println("<head>");
                         out.println("<title>Delete User</title>");
                         out.println("</head>");
                         out.println("<body>");
-                        out.println("<h1>No such user to delete...</h1>");
+                        out.println("<h1>Error processing request...</h1>");
                         out.println("</body>");
                         out.println("</html>");
                         response.setHeader("Refresh", "5;UpdateUserPage");
                     }
                 }
-                catch (Exception e)
+                else
                 {
                     // SQL Exception
                     out.println("<html>");
@@ -109,7 +131,7 @@ public class DeleteUser extends HttpServlet
                     out.println("<title>Delete User</title>");
                     out.println("</head>");
                     out.println("<body>");
-                    out.println("<h1>Error processing request...</h1>");
+                    out.println("<h1>Detected invalid input characters in username...</h1>");
                     out.println("</body>");
                     out.println("</html>");
                     response.setHeader("Refresh", "5;UpdateUserPage");

@@ -98,13 +98,24 @@ public class FileDeletePage extends HttpServlet
                         if (userIsManager)
                         {
                             // own, dept
-                            docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+                            docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
+                                    + "FROM Docs A, Users U "
+                                    + "WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) "
+                                    + "AND U.uid=A.ouid "
+                                    + "AND NOT EXISTS (SELECT * FROM Users U WHERE U.role>" + userRole + " AND U.uid=A.ouid) "
+                                    + "AND (NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)"
+                                    + "OR EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))";
 
                         }
                         else if (userIsRegEmp)
                         {
                             //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
-                            docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid + " AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+                            docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
+                                    + "FROM Docs A "
+                                    + "WHERE A.ouid=" + uid + " "
+                                    + "AND U.uid=A.ouid "
+                                    + "AND (NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)"
+                                    + "OR EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))";
                         }
                         else
                         {
