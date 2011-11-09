@@ -120,7 +120,7 @@ public class FileLockPage extends HttpServlet
                         // share, own
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Users U "
-                                + "WHERE ((A.ouid=" + uid + ") "
+                                + "WHERE A.ouid=" + uid + " "
                                 + "AND U.uid=A.ouid "
                                 + "AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";                        
                         
