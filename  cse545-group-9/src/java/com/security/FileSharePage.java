@@ -61,7 +61,7 @@ public class FileSharePage extends HttpServlet
         {
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Update User Page</title>");
+            out.println("<title>File Share Page</title>");
             out.println("</head>");
             out.println("<body>");
 
@@ -92,74 +92,94 @@ public class FileSharePage extends HttpServlet
 
                     boolean userIsManager = (userRole > Roles.REG_EMP.ordinal());
                     boolean userIsRegEmp = (userRole == Roles.REG_EMP.ordinal());
+                    boolean userIsGuest = (userRole == Roles.GUEST.ordinal());
 
-                    if (userIsManager)
+                    if (!userIsGuest)
                     {
-                        // own, dept
-                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "'))";
+                        if (userIsManager)
+                        {
+                            // own, dept
+                            docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "'))";
+                            docRs = docStmt.executeQuery(docQuery);
+                        }
+                        else if (userIsRegEmp)
+                        {
+                            //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
+                            docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
+                            docRs = docStmt.executeQuery(docQuery);
+                        }
+                        else
+                        {
+                            // invalid role
+                        }
 
-                    }
-                    else if (userIsRegEmp)
-                    {
-                        //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE (B.sdid=A.did AND B.suid=" + uid + ") OR A.ouid=" + uid;
-                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
+                        shareRs = shareStmt.executeQuery(shareQuery);
+
+                        out.println("<FORM action=\"FileShare\" method=POST>");
+                        out.println("<table border=\"0\">");
+                        out.println("<tr><th colspan=\"2\">Share a document</th></tr>");
+
+                        out.println("<tr><td>Select a document to share:</td><td><select name=\"title\">");
+
+                        while (docRs.next())
+                        {
+                            out.println("<option value=\"" + docRs.getString("title") + "\">" + docRs.getString("title") + "</option>");
+                        }
+
+                        out.println("</select></td></tr>");
+
+                        out.println("<tr><td>Select user to share with:</td><td><select name=\"shareuser\">");
+
+                        while (shareRs.next())
+                        {
+                            out.println("<option value=\"" + shareRs.getString("uname") + "\">" + shareRs.getString("uname") + "</option>");
+                        }
+
+                        out.println("</select></td></tr>");
+
+                        out.println("<tr><td>Enter Security Group:</td><td><select name=\"perm\" type=\"text\">"
+                                + "<option value=\"R\">READ</option>"
+                                + "<option value=\"U\">UPDATE</option>"
+                                + "<option value=\"L\">CHECK IN/OUT</option>"
+                                + "</select></td></tr>");
+
+                        out.println("<tr><td colspan=\"2\"><input type=\"submit\" value=\"Submit\" /></td></tr>");
+                        out.println("</table>");
+                        out.println("</FORM>");
                     }
                     else
                     {
-                        // invalid role
+                        // user is guest
+                        out.println("<h1>Guests are not allowed to share...</h1>");
                     }
-
-                    docRs = docStmt.executeQuery(docQuery);
-                    shareRs = shareStmt.executeQuery(shareQuery);
-
-                    out.println("<FORM action=\"FileShare\" method=POST>");
-                    out.println("<table border=\"0\">");
-                    out.println("<tr><th colspan=\"2\">Share a document</th></tr>");
-                    
-                    out.println("<tr><td>Select a document to share:</td><td><select name=\"title\">");
-
-                    while (docRs.next())
-                    {
-                        out.println("<option value=\"" + docRs.getString("title") + "\">" + docRs.getString("title") + "</option>");
-                    }
-
-                    out.println("</select></td></tr>");
-                    
-                    out.println("<tr><td>Select user to share with:</td><td><select name=\"shareuser\">");
-
-                    while (shareRs.next())
-                    {
-                        out.println("<option value=\"" + shareRs.getString("uname") + "\">" + shareRs.getString("uname") + "</option>");
-                    }
-
-                    out.println("</select></td></tr>");
-
-                    out.println("<tr><td>Enter Security Group:</td><td><select name=\"perm\" type=\"text\">"
-                            + "<option value=\"R\">READ</option>"
-                            + "<option value=\"U\">UPDATE</option>"
-                            + "<option value=\"L\">CHECK IN/OUT</option>"
-                            + "</select></td></tr>");
-
-                    out.println("<tr><td colspan=\"2\"><input type=\"submit\" value=\"Submit\" /></td></tr>");
-                    out.println("</table>");
-                    out.println("</FORM>");
                 }
+                else
+                {
+                    // invalid user
+                    out.println("<h1>You are not a valid user...</h1>");
+                }
+
             }
             catch (Exception e)
             {
                 // SQL Error
-                out.println("<p>Error retrieving data...</p>");
+                out.println("<h1>Error retrieving data...</h1>");
             }
 
-            out.println("<a href=\"user.jsp\" >Return to User Page</a>");
-            out.println("</body>");
-            out.println("</html>");
+            //out.println("<a href=\"user.jsp\" >Return to User Page</a>");
+            //out.println("</body>");
+            //out.println("</html>");
         }
         catch (Exception e)
         {
+            // Output stream error
+            response.setHeader("Refresh", "2;user.jsp");
         }
         finally
         {
+            out.println("<a href=\"user.jsp\" >Return to User Page</a>");
+            out.println("</body>");
+            out.println("</html>");
             out.close();
         }
     }

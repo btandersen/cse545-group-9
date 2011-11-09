@@ -100,42 +100,50 @@ public class FileUpdatePage extends HttpServlet
                         // share, own, dept
                         docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "'))";
                         shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
+
+                        docRs = docStmt.executeQuery(docQuery);
+                        shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else if (userIsRegEmp)
                     {
                         // share, own
-
                         docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND A.ouid=" + uid;
                         shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
+
+                        docRs = docStmt.executeQuery(docQuery);
+                        shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else if (userIsGuest)
                     {
                         // share
                         shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE ((NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)) OR (EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + "))) AND B.perm='U' AND B.sdid=A.did AND B.suid=" + uid;
+
+                        shareRs = shareStmt.executeQuery(shareQuery);
                     }
                     else
                     {
                         // invalid role
                     }
 
-                    docRs = docStmt.executeQuery(docQuery);
-                    shareRs = shareStmt.executeQuery(shareQuery);
-
-                    out.println("<table><th>Owned</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th>");
-
-                    while (docRs.next())
+                    if (userIsManager || userIsRegEmp)
                     {
-                        out.println("<tr>");
-                        out.println("<td>" + docRs.getString("title") + "</td><td>"
-                                + docRs.getString("auth") + "</td><td>"
-                                + docRs.getString("dept") + "</td><td>"
-                                + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
-                                + docRs.getString("filename") + "</td>");
-                        out.println("</tr>");
+                        out.println("<table><th>Owned</th>");
+                        out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th>");
+
+                        while (docRs.next())
+                        {
+                            out.println("<tr>");
+                            out.println("<td>" + docRs.getString("title") + "</td><td>"
+                                    + docRs.getString("auth") + "</td><td>"
+                                    + docRs.getString("dept") + "</td><td>"
+                                    + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
+                                    + docRs.getString("filename") + "</td>");
+                            out.println("</tr>");
+                        }
+
+                        out.println("</table>");
                     }
 
-                    out.println("</table>");
                     out.println("<table><th>Shared</th>");
                     out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th>");
 
@@ -156,15 +164,19 @@ public class FileUpdatePage extends HttpServlet
                     out.println("<table border=\"0\">");
                     out.println("<tr><td colspan=\"2\">File Update</td></tr>");
 
-                    docRs.beforeFirst();
-                    shareRs.beforeFirst();
-
                     out.println("<tr><td>Select File to Update:</td><td><select name=\"title\">");
 
-                    while (docRs.next())
+                    if (userIsManager || userIsRegEmp)
                     {
-                        out.println("<option value=\"" + docRs.getString("title") + "\">" + docRs.getString("title") + "</option>");
+                        docRs.beforeFirst();
+
+                        while (docRs.next())
+                        {
+                            out.println("<option value=\"" + docRs.getString("title") + "\">" + docRs.getString("title") + "</option>");
+                        }
                     }
+
+                    shareRs.beforeFirst();
 
                     while (shareRs.next())
                     {
@@ -208,6 +220,8 @@ public class FileUpdatePage extends HttpServlet
         }
         catch (Exception e)
         {
+            // Output stream error
+            response.setHeader("Refresh", "2;user.jsp");
         }
         finally
         {
