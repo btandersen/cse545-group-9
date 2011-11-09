@@ -57,6 +57,7 @@ public class FileUpload extends HttpServlet
         String deptSet = "HR,LS,IT,SP,RD,FN";
 
         boolean result = false;
+        boolean validFileType = false;
         String user = request.getRemoteUser();
         String title = null;
 
@@ -145,6 +146,18 @@ public class FileUpload extends HttpServlet
                                 }
                             }
 
+                            validFileType = (filename.endsWith(".pdf")
+                                    || filename.endsWith(".doc")
+                                    || filename.endsWith(".docx")
+                                    || filename.endsWith(".xls")
+                                    || filename.endsWith("xlsx")
+                                    || filename.endsWith("ppt")
+                                    || filename.endsWith("pptx")
+                                    || filename.endsWith(".txt")
+                                    || filename.endsWith("jpg")
+                                    || filename.endsWith("jpeg")
+                                    || filename.endsWith("png"));
+
                             String titleRegex = "[\\w]{1,45}+";
                             String authRegex = "[\\w]{1,45}+";
                             String fileNameRegex = "([\\w\\_-]+\\.([a-zA-Z]{1,4}+)){1,45}";
@@ -161,7 +174,7 @@ public class FileUpload extends HttpServlet
                             {
                                 if ((auth != null) && !(auth.isEmpty()) && authMatcher.matches())
                                 {
-                                    if ((filename != null) && !(filename.isEmpty()) && filenameMatcher.matches())
+                                    if (validFileType && (filename != null) && !(filename.isEmpty()) && filenameMatcher.matches())
                                     {
                                         if ((dept != null) && !(dept.isEmpty()) && deptSet.contains(dept))
                                         {
@@ -227,7 +240,7 @@ public class FileUpload extends HttpServlet
                                         out.println("<title>File Upload</title>");
                                         out.println("</head>");
                                         out.println("<body>");
-                                        out.println("<h1>You selected an invalid filename...</h1>");
+                                        out.println("<h1>You selected an invalid filename or filetype...</h1>");
                                         out.println("</body>");
                                         out.println("</html>");
                                         response.setHeader("Refresh", "5;fileupload.jsp");
