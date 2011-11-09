@@ -20,6 +20,7 @@
         <p><a href="FileUnlockPage">Unlock a file</a></p>
         <p><a href="FileDeletePage">Delete a file</a></p>
         <p><a href="FileSharePage">Share a file</a></p>
+        <p><a href="passwordreset.jsp">Reset password</a></p>
         <p><%@include file="/WEB-INF/jspf/logoutform.jspf" %>
     </body>
 </html>

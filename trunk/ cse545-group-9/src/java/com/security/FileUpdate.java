@@ -56,7 +56,7 @@ public class FileUpdate extends HttpServlet
         String deptSet = "HR,LS,IT,SP,RD,FN";
 
         boolean result = false;
-
+        boolean validFileType = false;
         String user = request.getRemoteUser();
         String title = "";
 
@@ -222,13 +222,25 @@ public class FileUpdate extends HttpServlet
                         Matcher authMatcher = authPattern.matcher(newAuth);
                         Matcher filenameMatcher = filenamePattern.matcher(newFilename);
 
+                        validFileType = (newFilename.endsWith(".pdf")
+                                || newFilename.endsWith(".doc")
+                                || newFilename.endsWith(".docx")
+                                || newFilename.endsWith(".xls")
+                                || newFilename.endsWith("xlsx")
+                                || newFilename.endsWith("ppt")
+                                || newFilename.endsWith("pptx")
+                                || newFilename.endsWith(".txt")
+                                || newFilename.endsWith("jpg")
+                                || newFilename.endsWith("jpeg")
+                                || newFilename.endsWith("png"));
+
                         if (titleMatcher.matches())
                         {
                             if (authMatcher.matches())
                             {
                                 if (deptSet.contains(newDept))
                                 {
-                                    if (filenameMatcher.matches())
+                                    if (validFileType && filenameMatcher.matches())
                                     {
                                         ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
                                                 + " WHERE " + "uid" + " = " + ouid + "";
@@ -380,7 +392,7 @@ public class FileUpdate extends HttpServlet
                                         out.println("<title>File Update</title>");
                                         out.println("</head>");
                                         out.println("<body>");
-                                        out.println("<h1>You entered an invalid filename...</h1>");
+                                        out.println("<h1>You entered an invalid filename or filetype...</h1>");
                                         out.println("</body>");
                                         out.println("</html>");
                                         response.setHeader("Refresh", "5;FileUpdatePage");

@@ -88,6 +88,10 @@
         <servlet-name>AdminLogPage</servlet-name>
         <servlet-class>com.security.AdminLogPage</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ResetPassword</servlet-name>
+        <servlet-class>com.security.ResetPassword</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -176,6 +180,10 @@
     <servlet-mapping>
         <servlet-name>AdminLogPage</servlet-name>
         <url-pattern>/admin/AdminLogPage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ResetPassword</servlet-name>
+        <url-pattern>/user/ResetPassword</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>5</session-timeout>

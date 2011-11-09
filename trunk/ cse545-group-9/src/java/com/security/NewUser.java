@@ -57,8 +57,9 @@ public class NewUser extends HttpServlet
         final String FNAME_REGEX = "[a-zA-Z]{1,45}+";
         final String LNAME_REGEX = "[a-zA-Z]{1,45}+";
         final String EMAIL_REGEX = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-        final String PWD_REGEX = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20})";
-
+        //final String PWD_REGEX = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20})";
+        final String PWD_REGEX = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\\`\\!\\@\\$\\%\\^\\&\\*\\(\\)\\-\\_\\=\\+\\[\\]\\;\\:\\'\"\\,\\<\\.\\>\\/\\?]).{8,20})";
+        
         Pattern unamePattern = Pattern.compile(UNAME_REGEX);
         Pattern fnamePattern = Pattern.compile(FNAME_REGEX);
         Pattern lnamePattern = Pattern.compile(LNAME_REGEX);
@@ -99,7 +100,12 @@ public class NewUser extends HttpServlet
             {
                 if (emailMatch)
                 {
-                    if (pwdMatch && pwd.equals(pwd1))
+                    if (pwdMatch && 
+                            pwd.equals(pwd1) && 
+                            !pwd.contains(uname) && 
+                            (pwd.indexOf("!") != 0) && 
+                            (pwd.indexOf("?") != 0) &&
+                            !pwd.substring(0, 3).equals(uname))
                     {
                         String query = "";
 
