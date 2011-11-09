@@ -121,13 +121,13 @@ public class FileDownloadPage extends HttpServlet
                         //shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Users U "
-                                + "WHERE ((A.ouid=" + uid + ") "
-                                + "AND U.uid=A.ouid ";
+                                + "WHERE A.ouid=" + uid + " "
+                                + "AND U.uid=A.ouid";
 
                         shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Shared B, Users U "
                                 + "WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid + " "
-                                + "AND U.uid=A.ouid ";
+                                + "AND U.uid=A.ouid";
 
                         docRs = docStmt.executeQuery(docQuery);
                         shareRs = shareStmt.executeQuery(shareQuery);

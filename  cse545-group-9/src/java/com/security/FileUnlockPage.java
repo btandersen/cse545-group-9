@@ -123,7 +123,7 @@ public class FileUnlockPage extends HttpServlet
                         //shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.sdid=A.did AND B.suid=" + uid + " AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Users U "
-                                + "WHERE ((A.ouid=" + uid + ") "
+                                + "WHERE A.ouid=" + uid + " "
                                 + "AND U.uid=A.ouid "
                                 + "AND EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid AND L.luid=" + uid + ")";
 
