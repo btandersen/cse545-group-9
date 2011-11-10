@@ -29,10 +29,6 @@
         <servlet-class>com.security.FileDelete</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>Admin</servlet-name>
-        <servlet-class>com.security.Admin</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>FileShare</servlet-name>
         <servlet-class>com.security.FileShare</servlet-class>
     </servlet>
@@ -115,10 +111,6 @@
     <servlet-mapping>
         <servlet-name>FileDelete</servlet-name>
         <url-pattern>/user/FileDelete</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Admin</servlet-name>
-        <url-pattern>/admin/Admin</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>FileShare</servlet-name>

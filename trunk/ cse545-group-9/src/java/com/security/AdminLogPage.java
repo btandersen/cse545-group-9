@@ -60,8 +60,47 @@ public class AdminLogPage extends HttpServlet
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Admin Log Page</title>");
+            out.println("<style type=\"text/css\">table, td, th { border:1px solid white; text-align:left; } th { background-color:grey; color:black; }</style>");  
             out.println("</head>");
             out.println("<body>");
+            out.println("<a href=\"admin.jsp\" >Return to Admin Page</a>");
+
+            try
+            {
+                Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                ResultSet userRs = null;
+                String userQuery = "";
+                String uname = request.getRemoteUser();
+                userQuery = "SELECT U.uid, U.uname, U.role, U.dept, G.groupid "
+                        + "FROM Users U, Groups G "
+                        + "WHERE U.uname='" + uname + "' "
+                        + "AND U.uname=G.uname";
+
+                userRs = userStmt.executeQuery(userQuery);
+
+                if (userRs.next())
+                {
+                    out.println("<table>");
+                    out.println("<tr><th>User ID</th><th>User Name</th><th>Role</th><th>Dept</th><th>Group</th></tr>");
+                    out.println("<tr>");
+                    out.println("<td>" + userRs.getInt("uid") + "</td>"
+                            + "<td>" + userRs.getString("uname") + "</td>"
+                            + "<td>" + Roles.values()[userRs.getInt("role")] + "</td>"
+                            + "<td>" + userRs.getString("dept") + "</td>"
+                            + "<td>" + userRs.getString("groupid") + "</td>");
+                    out.println("</tr>");
+                    out.println("</table>");
+                }
+                else
+                {
+                    // user not found in database
+                }
+            }
+            catch (SQLException e)
+            {
+                // error retrieving current user from db
+            }
+
 
             if (request.isUserInRole("admin"))
             {
@@ -120,7 +159,6 @@ public class AdminLogPage extends HttpServlet
             out.println("<h1>Error reporting results...</h1>");
         }
 
-        out.println("<a href=\"admin.jsp\" >Return to Admin Page</a>");
         out.println("</body>");
         out.println("</html>");
         out.close();
