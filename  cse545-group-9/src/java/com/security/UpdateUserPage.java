@@ -53,7 +53,7 @@ public class UpdateUserPage extends HttpServlet
     {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
+
         String user = request.getRemoteUser();
 
         try
@@ -61,8 +61,50 @@ public class UpdateUserPage extends HttpServlet
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Update User Page</title>");
+            out.println("<LINK href=\"../css/style.css\" rel=\"stylesheet\" type=\"text/css\" />");
             out.println("</head>");
             out.println("<body>");
+            out.println("<div id=\"container\">");
+            out.println("<div id=\"header\"><h1>Web Document Management System</h1></div>");
+            out.println("<div id=\"content\">");
+            
+            try
+            {
+                Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                ResultSet userRs = null;
+                String userQuery = "";
+                String uname = request.getRemoteUser();
+                userQuery = "SELECT U.uid, U.uname, U.role, U.dept, G.groupid "
+                        + "FROM Users U, Groups G "
+                        + "WHERE U.uname='" + uname + "' "
+                        + "AND U.uname=G.uname";
+
+                userRs = userStmt.executeQuery(userQuery);
+
+                if (userRs.next())
+                {
+                    out.println("<div id=\"currentuser\"><table>");
+                    out.println("<tr><th>Current User</th></tr><tr><th>User ID</th><th>User Name</th><th>Role</th><th>Dept</th><th>Group</th></tr>");
+                    out.println("<tr>");
+                    out.println("<td>" + userRs.getInt("uid") + "</td>"
+                            + "<td>" + userRs.getString("uname") + "</td>"
+                            + "<td>" + Roles.values()[userRs.getInt("role")] + "</td>"
+                            + "<td>" + userRs.getString("dept") + "</td>"
+                            + "<td>" + userRs.getString("groupid") + "</td>");
+                    out.println("</tr>");
+                    out.println("</table><div>");
+                }
+                else
+                {
+                    // user not found in database
+                }
+            }
+            catch (SQLException e)
+            {
+                // error retrieving current user from db
+            }
+            
+            out.println("<div><a href=\"admin.jsp\" >Return to Admin Page</a></div>");
 
             Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
@@ -73,72 +115,73 @@ public class UpdateUserPage extends HttpServlet
             try
             {
                 userRs = userStmt.executeQuery(userQuery);
-                    out.println("<form action=\"DeleteUser\" method=POST>");
-                    out.println("<table><th>Select a User to Delete</th>");
-                    out.println("<tr><th>User ID</th><th>Username</th><th>Role</th><th>Department</th>");
+                out.println("<div id=\"deleteuser\"><form action=\"DeleteUser\" method=POST>");
+                out.println("<table><th>Select a User to Delete</th>");
+                out.println("<tr><th>User ID</th><th>Username</th><th>Role</th><th>Department</th>");
 
-                    while (userRs.next())
-                    {
-                        out.println("<tr>");
-                        out.println("<td>" + userRs.getString("uid") + "</td><td>"
-                                + userRs.getString("uname") + "</td><td>"
-                                + Roles.values()[userRs.getInt("role")] + "</td><td>"
-                                + userRs.getString("dept") + "</td>"
-                                + "<td><input type=\"radio\" name=\"uname\" value=\"" + userRs.getString("uname") + "\"></td>");
-                        out.println("</tr>");
-                    }
+                while (userRs.next())
+                {
+                    out.println("<tr>");
+                    out.println("<td>" + userRs.getString("uid") + "</td><td>"
+                            + userRs.getString("uname") + "</td><td>"
+                            + Roles.values()[userRs.getInt("role")] + "</td><td>"
+                            + userRs.getString("dept") + "</td>"
+                            + "<td><input type=\"radio\" name=\"uname\" value=\"" + userRs.getString("uname") + "\"></td>");
+                    out.println("</tr>");
+                }
 
-                    out.println("<tr><td><input type=\"submit\" value=\"Submit\" /></td></tr>");
-                    out.println("</table>");
-                    out.println("</form>");
+                out.println("<tr><td><input type=\"submit\" value=\"Submit\" /></td></tr>");
+                out.println("</table>");
+                out.println("</form></div>");
 
-                    out.println("<FORM action=\"UpdateUser\" method=POST>");
-                    out.println("<table border=\"0\">");
-                    out.println("<tr><th colspan=\"2\">Update a User</th></tr>");
-                    
-                    userRs.beforeFirst();
-                    
-                    out.println("<tr><td>Select File to Update:</td><td><select name=\"userToUpdate\">");
-                    
-                    while (userRs.next())
-                    {
-                        out.println("<option value=\"" + userRs.getString("uname") + "\">" + userRs.getString("uname") + "</option>");
-                    }
-                    
-                    out.println("</select></td></tr>");
-                    
-                    out.println("<tr><td>Enter New Role:</td><td><select name=\"newrole\" type=\"text\">"
-                            + "<option value=\"1\">GUEST</option>"
-                            + "<option value=\"2\">REGULAR EMPLOYEE</option>"
-                            + "<option value=\"3\">MANAGER</option>"
-                            + "<option value=\"4\">OFFICER</option>"
-                            + "</select></td></tr>");
-                    
-                    out.println("<tr><td>Enter New Department:</td><td><select name=\"newdept\" type=\"text\">"
-                            + "<option value=\"HR\">HR</option>"
-                            + "<option value=\"LS\">LS</option>"
-                            + "<option value=\"IT\">IT</option>"
-                            + "<option value=\"SP\">SP</option>"
-                            + "<option value=\"RD\">RD</option>"
-                            + "<option value=\"FN\">FN</option>"
-                            + "<option value=\"GUEST\">GUEST</option>"
-                            + "</select></td></tr>");
-                    
-                    out.println("<tr><td>Enter Security Group:</td><td><select name=\"group\" type=\"text\">"
-                            + "<option value=\"appuser\">USER</option>"
-                            + "<option value=\"appadmin\">ADMIN</option>"
-                            + "</select></td></tr>");
-                    
-                    out.println("<tr><td colspan=\"2\"><input type=\"submit\" value=\"Submit\" /></td></tr>");
-                    out.println("</table>");
-                    out.println("</FORM>");
+                out.println("<div id=\"updateuser\"><FORM action=\"UpdateUser\" method=POST>");
+                out.println("<table border=\"0\">");
+                out.println("<tr><th colspan=\"2\">Update a User</th></tr><tr><th>Make selections below</th></tr>");
+
+                userRs.beforeFirst();
+
+                out.println("<tr><td>Select User to Update:</td><td><select name=\"userToUpdate\">");
+
+                while (userRs.next())
+                {
+                    out.println("<option value=\"" + userRs.getString("uname") + "\">" + userRs.getString("uname") + "</option>");
+                }
+
+                out.println("</select></td></tr>");
+
+                out.println("<tr><td>Enter New Role:</td><td><select name=\"newrole\" type=\"text\">"
+                        + "<option value=\"1\">GUEST</option>"
+                        + "<option value=\"2\">REGULAR EMPLOYEE</option>"
+                        + "<option value=\"3\">MANAGER</option>"
+                        + "<option value=\"4\">OFFICER</option>"
+                        + "</select></td></tr>");
+
+                out.println("<tr><td>Enter New Department:</td><td><select name=\"newdept\" type=\"text\">"
+                        + "<option value=\"HR\">HR</option>"
+                        + "<option value=\"LS\">LS</option>"
+                        + "<option value=\"IT\">IT</option>"
+                        + "<option value=\"SP\">SP</option>"
+                        + "<option value=\"RD\">RD</option>"
+                        + "<option value=\"FN\">FN</option>"
+                        + "<option value=\"GUEST\">GUEST</option>"
+                        + "</select></td></tr>");
+
+                out.println("<tr><td>Enter Security Group:</td><td><select name=\"group\" type=\"text\">"
+                        + "<option value=\"appuser\">USER</option>"
+                        + "<option value=\"appadmin\">ADMIN</option>"
+                        + "</select></td></tr>");
+
+                out.println("<tr><td colspan=\"2\"><input type=\"submit\" value=\"Submit\" /></td></tr>");
+                out.println("</table>");
+                out.println("</FORM></div>");
             }
             catch (Exception e)
             {
                 // SQL Error
             }
-            
-            out.println("<a href=\"admin.jsp\" >Return to Admin Page</a>");
+
+            out.println("</div>");
+            out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
             out.println("</body>");
             out.println("</html>");
         }

@@ -110,6 +110,7 @@ public class Login extends HttpServlet
                             }
                             else
                             {
+                                request.logout();
                                 response.sendRedirect("guest.jsp");
                             }
                         }
