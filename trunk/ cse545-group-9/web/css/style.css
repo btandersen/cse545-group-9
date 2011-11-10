@@ -38,6 +38,18 @@ html
 
 #footer
 {
-     background: lightgray;
+    background: lightgray;
     clear: both;
+}
+
+#deleteuser
+{
+    float: left;
+    padding: 5px;
+}
+
+#updateuser
+{
+    float: left;
+    padding: 5px;
 }

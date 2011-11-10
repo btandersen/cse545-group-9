@@ -1,9 +1,3 @@
-<%-- 
-    Document   : newuser
-    Created on : Oct 23, 2011, 8:40:02 PM
-    Author     : Administrator
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>

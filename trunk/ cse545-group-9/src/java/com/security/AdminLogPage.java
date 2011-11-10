@@ -60,11 +60,13 @@ public class AdminLogPage extends HttpServlet
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Admin Log Page</title>");
-            out.println("<link type=\"text/css\" href=\"../css/style.css\" />");
+            out.println("<LINK href=\"../css/style.css\" rel=\"stylesheet\" type=\"text/css\" />");
             out.println("</head>");
             out.println("<body>");
-            out.println("<a href=\"admin.jsp\" >Return to Admin Page</a>");
-
+            out.println("<div id=\"container\">");
+            out.println("<div id=\"header\"><h1>Web Document Management System</h1></div>");
+            out.println("<div id=\"content\">");
+            
             try
             {
                 Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
@@ -80,8 +82,8 @@ public class AdminLogPage extends HttpServlet
 
                 if (userRs.next())
                 {
-                    out.println("<table>");
-                    out.println("<tr><th>User ID</th><th>User Name</th><th>Role</th><th>Dept</th><th>Group</th></tr>");
+                    out.println("<div id=\"currentuser\"><table>");
+                    out.println("<tr><th>Current User</th></tr><tr><th>User ID</th><th>User Name</th><th>Role</th><th>Dept</th><th>Group</th></tr>");
                     out.println("<tr>");
                     out.println("<td>" + userRs.getInt("uid") + "</td>"
                             + "<td>" + userRs.getString("uname") + "</td>"
@@ -89,7 +91,7 @@ public class AdminLogPage extends HttpServlet
                             + "<td>" + userRs.getString("dept") + "</td>"
                             + "<td>" + userRs.getString("groupid") + "</td>");
                     out.println("</tr>");
-                    out.println("</table>");
+                    out.println("</table><div>");
                 }
                 else
                 {
@@ -100,7 +102,8 @@ public class AdminLogPage extends HttpServlet
             {
                 // error retrieving current user from db
             }
-
+            
+            out.println("<div><a href=\"admin.jsp\" >Return to Admin Page</a></div>");
 
             if (request.isUserInRole("admin"))
             {
@@ -158,7 +161,9 @@ public class AdminLogPage extends HttpServlet
             // output stream error
             out.println("<h1>Error reporting results...</h1>");
         }
-
+        
+        out.println("</div>");
+        out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
         out.println("</body>");
         out.println("</html>");
         out.close();
