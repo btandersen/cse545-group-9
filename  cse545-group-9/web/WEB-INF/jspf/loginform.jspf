@@ -1,22 +1,26 @@
-<form action="Login" method="POST">
-    <table border="0">
-        <tbody>
-            <tr>
-                <td align="right">Username:&nbsp;</td>
-                <td>
-                    <input type="text" name="j_username" />
-                </td>
-            </tr>
-            <tr>
-                <td align="right">Password:&nbsp;</td>
-                <td>
-                    <input type="password" name="j_password" />
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><input type="submit" value="Login" /></td>
-            </tr>
-        </tbody>
-    </table>
-</form>
+<div id="login">
+    <h2>Login</h2>
+    <p>Please enter your username and password to login</p>
+    <form action="Login" method="POST">
+        <table>
+            <tbody>
+                <tr>
+                    <td>Username:&nbsp;</td>
+                    <td>
+                        <input type="text" name="j_username" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Password:&nbsp;</td>
+                    <td>
+                        <input type="password" name="j_password" />
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" value="Login" /></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
