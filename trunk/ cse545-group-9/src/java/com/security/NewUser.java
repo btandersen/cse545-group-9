@@ -100,7 +100,7 @@ public class NewUser extends HttpServlet
         Captcha captcha = (Captcha) session.getAttribute(Captcha.NAME);
         request.setCharacterEncoding("UTF-8"); // Do this so we can capture non-Latin chars
         String answer = request.getParameter("answer");
-        
+
         if (captcha.isCorrect(answer))
         {
             if (unameMatch)
@@ -219,6 +219,15 @@ public class NewUser extends HttpServlet
         else
         {
             // incorrect captcha
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>New User Request</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>CAPTCHA Test failed, try again...</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            response.setHeader("Refresh", "5;index.jsp");
         }
     }
 
