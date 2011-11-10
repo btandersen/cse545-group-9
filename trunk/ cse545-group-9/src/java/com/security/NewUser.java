@@ -16,6 +16,9 @@ import javax.naming.*;
 
 import java.util.regex.*;
 
+import javax.servlet.http.HttpSession;
+import nl.captcha.Captcha;
+
 /**
  *
  * @author Administrator
@@ -58,7 +61,7 @@ public class NewUser extends HttpServlet
         final String LNAME_REGEX = "[a-zA-Z]{1,45}+";
         final String EMAIL_REGEX = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
         final String PWD_REGEX = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\\`\\!\\@\\$\\%\\^\\&\\*\\(\\)\\-\\_\\=\\+\\[\\]\\;\\:\\'\"\\,\\<\\.\\>\\/\\?]).{8,20})";
-        
+
         Pattern unamePattern = Pattern.compile(UNAME_REGEX);
         Pattern fnamePattern = Pattern.compile(FNAME_REGEX);
         Pattern lnamePattern = Pattern.compile(LNAME_REGEX);
@@ -93,72 +96,93 @@ public class NewUser extends HttpServlet
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
-        if (unameMatch)
+        HttpSession session = request.getSession(true);
+        Captcha captcha = (Captcha) session.getAttribute(Captcha.NAME);
+        request.setCharacterEncoding("UTF-8"); // Do this so we can capture non-Latin chars
+        String answer = request.getParameter("answer");
+        
+        if (captcha.isCorrect(answer))
         {
-            if (fnameMatch && lnameMatch)
+            if (unameMatch)
             {
-                if (emailMatch)
+                if (fnameMatch && lnameMatch)
                 {
-                    if (pwdMatch && 
-                            pwd.equals(pwd1) && 
-                            !pwd.contains(uname) && 
-                            (pwd.indexOf("!") != 0) && 
-                            (pwd.indexOf("?") != 0) &&
-                            !pwd.substring(0, 3).equals(uname))
+                    if (emailMatch)
                     {
-                        String query = "";
+                        if (pwdMatch
+                                && pwd.equals(pwd1)
+                                && !pwd.contains(uname)
+                                && (pwd.indexOf("!") != 0)
+                                && (pwd.indexOf("?") != 0)
+                                && !pwd.substring(0, 3).equals(uname))
+                        {
+                            String query = "";
 
-                        try
-                        {
-                            //open connection to db
-                            Statement stmt = conn.createStatement();
-                            query = "INSERT INTO mydb.users (uname,fname,lname,email,role,dept,pwd) VALUES ('"
-                                    + uname + "','"
-                                    + fname + "','"
-                                    + lname + "','"
-                                    + email + "',0,'TEMP',md5('" + pwd + "'))";
-                            stmt.executeUpdate(query); //execute (insert the row)
-                            stmt.close(); //close the statement
+                            try
+                            {
+                                //open connection to db
+                                Statement stmt = conn.createStatement();
+                                query = "INSERT INTO mydb.users (uname,fname,lname,email,role,dept,pwd) VALUES ('"
+                                        + uname + "','"
+                                        + fname + "','"
+                                        + lname + "','"
+                                        + email + "',0,'TEMP',md5('" + pwd + "'))";
+                                stmt.executeUpdate(query); //execute (insert the row)
+                                stmt.close(); //close the statement
+                            }
+                            catch (SQLException e) //generic SQL error
+                            {
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>New User Request</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>Error attempting to submit request</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;index.jsp");
+                            }
+
+                            try
+                            {
+                                out.println("<html>");
+                                out.println("<head>");
+                                out.println("<title>New User Request</title>");
+                                out.println("</head>");
+                                out.println("<body>");
+                                out.println("<h1>Request sent for: " + uname + "</h1>");
+                                out.println("</body>");
+                                out.println("</html>");
+                                response.setHeader("Refresh", "5;index.jsp");
+                            }
+                            finally
+                            {
+                                out.close();
+                            }
                         }
-                        catch (SQLException e) //generic SQL error
+                        else
                         {
+                            //bad pwd
                             out.println("<html>");
                             out.println("<head>");
                             out.println("<title>New User Request</title>");
                             out.println("</head>");
                             out.println("<body>");
-                            out.println("<h1>Error attempting to submit request</h1>");
+                            out.println("<h1>Bad password</h1>");
                             out.println("</body>");
                             out.println("</html>");
                             response.setHeader("Refresh", "5;index.jsp");
-                        }
-
-                        try
-                        {
-                            out.println("<html>");
-                            out.println("<head>");
-                            out.println("<title>New User Request</title>");
-                            out.println("</head>");
-                            out.println("<body>");
-                            out.println("<h1>Request sent for: " + uname + "</h1>");
-                            out.println("</body>");
-                            out.println("</html>");
-                            response.setHeader("Refresh", "5;index.jsp");
-                        }
-                        finally
-                        {
-                            out.close();
                         }
                     }
                     else
                     {
-                        //bad pwd
+                        // bad email
                         out.println("<html>");
                         out.println("<head>");
                         out.println("<title>New User Request</title>");
                         out.println("</head>");
                         out.println("<body>");
-                        out.println("<h1>Bad password</h1>");
+                        out.println("<h1>Bad email</h1>");
                         out.println("</body>");
                         out.println("</html>");
                         response.setHeader("Refresh", "5;index.jsp");
@@ -166,13 +190,13 @@ public class NewUser extends HttpServlet
                 }
                 else
                 {
-                    // bad email
+                    // bad fname or lname
                     out.println("<html>");
                     out.println("<head>");
                     out.println("<title>New User Request</title>");
                     out.println("</head>");
                     out.println("<body>");
-                    out.println("<h1>Bad email</h1>");
+                    out.println("<h1>Bad firstname or lastname</h1>");
                     out.println("</body>");
                     out.println("</html>");
                     response.setHeader("Refresh", "5;index.jsp");
@@ -180,13 +204,13 @@ public class NewUser extends HttpServlet
             }
             else
             {
-                // bad fname or lname
+                // bad uname
                 out.println("<html>");
                 out.println("<head>");
                 out.println("<title>New User Request</title>");
                 out.println("</head>");
                 out.println("<body>");
-                out.println("<h1>Bad firstname or lastname</h1>");
+                out.println("<h1>Bad username</h1>");
                 out.println("</body>");
                 out.println("</html>");
                 response.setHeader("Refresh", "5;index.jsp");
@@ -194,16 +218,7 @@ public class NewUser extends HttpServlet
         }
         else
         {
-            // bad uname
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>New User Request</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Bad username</h1>");
-            out.println("</body>");
-            out.println("</html>");
-            response.setHeader("Refresh", "5;index.jsp");
+            // incorrect captcha
         }
     }
 
