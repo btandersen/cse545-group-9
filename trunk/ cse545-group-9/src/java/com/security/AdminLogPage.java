@@ -60,7 +60,7 @@ public class AdminLogPage extends HttpServlet
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Admin Log Page</title>");
-            out.println("<style type=\"text/css\">table, td, th { border:1px solid white; text-align:left; } th { background-color:grey; color:black; }</style>");  
+            out.println("<link type=\"text/css\" href=\"../css/style.css\" />");
             out.println("</head>");
             out.println("<body>");
             out.println("<a href=\"admin.jsp\" >Return to Admin Page</a>");

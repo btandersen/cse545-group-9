@@ -1,5 +1,5 @@
 <FORM enctype="multipart/form-data" action="FileUpdate" method=POST>
-    <table border="0">
+    <table>
         <tr>
             <td colspan="2">File Update</td>
         </tr>
@@ -24,7 +24,8 @@
             <td><input name="file" type="file" /></td>
         </tr>
         <tr>
-            <td colspan="2"><input type="submit" value="Submit" /></td>
+            <td></td>
+            <td><input type="submit" value="Submit" /></td>
         </tr>
     </table>     
 </FORM>

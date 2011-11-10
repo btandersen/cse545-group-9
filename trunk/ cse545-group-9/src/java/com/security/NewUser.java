@@ -95,7 +95,7 @@ public class NewUser extends HttpServlet
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-
+        
         HttpSession session = request.getSession(true);
         Captcha captcha = (Captcha) session.getAttribute(Captcha.NAME);
         request.setCharacterEncoding("UTF-8"); // Do this so we can capture non-Latin chars
@@ -239,8 +239,7 @@ public class NewUser extends HttpServlet
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         processRequest(request, response);
     }

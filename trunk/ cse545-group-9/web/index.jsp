@@ -10,18 +10,17 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>CSE 545 Group 9 | Web Document Management System</title>
+        <LINK href="css/style.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
-        <h1>Web Document Management System</h1>
-        <h2>Login</h2>
-        <p>
-            Please enter your username and password to access the application...
-        </p>
-        <%@include file="WEB-INF/jspf/loginform.jspf" %>
-        <h2>Create New User Request</h2>
-        <p>
-            Please enter your information below to access the application...
-        </p>
-        <%@include file="WEB-INF/jspf/newuserform.jspf" %>
+        <div id="container">
+            <%@include file="WEB-INF/jspf/header.jspf" %>
+            <div id="content">
+                <%@include file="WEB-INF/jspf/loginform.jspf" %>
+                <%@include file="WEB-INF/jspf/newuserform.jspf" %>
+            </div>
+            <%@include file="WEB-INF/jspf/footer.jspf" %>
+        </div>
     </body>
 </html>
+

@@ -1,0 +1,43 @@
+body
+{
+    color: black;
+    font-family: Arial, Helvetica, Geneva, sans-serif;
+}
+
+table, tr, td, th
+{
+    text-align: left;
+    vertical-align: top;
+}
+
+html
+{
+    height: 100%;
+}
+
+#container
+{
+}
+
+#header
+{
+    background: lightgray;
+}
+
+#login
+{
+    float: left;
+    padding: 5px;
+}
+
+#newuser
+{
+    float: left;
+    padding: 5px;
+}
+
+#footer
+{
+     background: lightgray;
+    clear: both;
+}
