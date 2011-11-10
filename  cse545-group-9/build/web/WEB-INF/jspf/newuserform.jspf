@@ -1,3 +1,4 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <form action="NewUser" method="POST">
     <table border="0">
         <tbody>
@@ -35,6 +36,18 @@
                 <td align="right">Re-enter Password:&nbsp;</td>
                 <td>
                     <input type="password" name="pwd1" />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <img id="captcha" src="<c:url value="simpleCaptcha.jpg" />" width="150" />
+                </td>
+            </tr>
+            <tr>
+                <td align="right">CAPTCHA Test:&nbsp;</td>
+                <td>
+                    <input type="text" name="answer" />
                 </td>
             </tr>
             <tr>
