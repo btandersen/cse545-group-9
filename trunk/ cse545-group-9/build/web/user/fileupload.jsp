@@ -9,12 +9,17 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>File Upload Page</title>
+        <title>CSE 545 Group 9 | Web Document Management System</title>
+        <LINK href="../css/style.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
-        <h1>File Upload</h1>
-        <%@include file="/WEB-INF/jspf/fileuploadform.jspf" %>
-        <a href="user.jsp" >Return to User Page</a>
-        <%@include file="/WEB-INF/jspf/logoutform.jspf" %>
+        <div id="container">
+            <%@include file="../WEB-INF/jspf/header.jspf" %>
+            <div id="content"><h1>File Upload</h1>
+                <%@include file="/WEB-INF/jspf/fileuploadform.jspf" %>
+                <a href="user.jsp" >Return to User Page</a>
+            </div>
+            <%@include file="../WEB-INF/jspf/footer.jspf" %>
+        </div>
     </body>
 </html>
