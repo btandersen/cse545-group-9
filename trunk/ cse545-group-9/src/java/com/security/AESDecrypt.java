@@ -46,7 +46,7 @@ public class AESDecrypt
             key1 = Arrays.copyOf(key1, 16); // use only first 128 bit
             SecretKeySpec secretKeySpec = new SecretKeySpec(key1, "AES");
             dcipher.init(Cipher.DECRYPT_MODE, secretKeySpec, paramSpec);
-            is = new CipherInputStream(is, dcipher);
+            is = (InputStream) new CipherInputStream(is, dcipher);
         }
         catch (Exception e)
         {

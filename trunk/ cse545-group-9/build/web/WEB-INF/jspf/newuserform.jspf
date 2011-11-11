@@ -2,7 +2,7 @@
 <div id="newuser">
     <h2>Create New User Request</h2>
     <p>Please enter your information below to access the application...</p>
-    <form action="NewUser" method="POST">
+    <form action="/WebDocManager/NewUser" method="POST">
         <table>
             <tbody>
                 <tr>

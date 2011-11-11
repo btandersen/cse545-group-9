@@ -10,7 +10,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>CSE 545 Group 9 | Web Document Management System</title>
-        <LINK href="css/style.css" rel="stylesheet" type="text/css" />
+        <LINK href="/WebDocManager/css/style.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
         <div id="container">

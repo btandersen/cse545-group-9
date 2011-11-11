@@ -9,13 +9,16 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Login</title>
+        <title>CSE 545 Group 9 | Web Document Management System</title>
+        <LINK href="/WebDocManager/css/style.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
-        <h1>Login Page</h1>
-        <p>
-            Please enter your username and password to access the application...
-        </p>
-        <%@include file="WEB-INF/jspf/loginform.jspf" %>
+        <div id="container">
+            <%@include file="WEB-INF/jspf/header.jspf" %>
+            <div id="content">
+                <%@include file="WEB-INF/jspf/loginform.jspf" %>
+            </div>
+            <%@include file="WEB-INF/jspf/footer.jspf" %>
+        </div>
     </body>
 </html>
