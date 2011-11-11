@@ -74,6 +74,12 @@ public class NewUser extends HttpServlet
         Matcher emailMatcher = null;
         Matcher pwdMatcher = null;
 
+        boolean unameMatch = false;
+        boolean fnameMatch = false;
+        boolean lnameMatch = false;
+        boolean emailMatch = false;
+        boolean pwdMatch = false;
+
         String uname = request.getParameter("uname");
         String fname = request.getParameter("fname");
         String lname = request.getParameter("lname");
@@ -81,21 +87,24 @@ public class NewUser extends HttpServlet
         String pwd = request.getParameter("pwd");
         String pwd1 = request.getParameter("pwd1");
 
-        unameMatcher = unamePattern.matcher(uname);
-        fnameMatcher = fnamePattern.matcher(fname);
-        lnameMatcher = lnamePattern.matcher(lname);
-        emailMatcher = emailPattern.matcher(email);
-        pwdMatcher = pwdPattern.matcher(pwd);
+        if ((uname != null) && (fname != null) && (lname != null) && (email != null) && (pwd != null))
+        {
+            unameMatcher = unamePattern.matcher(uname);
+            fnameMatcher = fnamePattern.matcher(fname);
+            lnameMatcher = lnamePattern.matcher(lname);
+            emailMatcher = emailPattern.matcher(email);
+            pwdMatcher = pwdPattern.matcher(pwd);
 
-        boolean unameMatch = unameMatcher.matches();
-        boolean fnameMatch = fnameMatcher.matches();
-        boolean lnameMatch = lnameMatcher.matches();
-        boolean emailMatch = emailMatcher.matches();
-        boolean pwdMatch = pwdMatcher.matches();
-
+            unameMatch = unameMatcher.matches();
+            fnameMatch = fnameMatcher.matches();
+            lnameMatch = lnameMatcher.matches();
+            emailMatch = emailMatcher.matches();
+            pwdMatch = pwdMatcher.matches();
+        }
+        
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
+
         HttpSession session = request.getSession(true);
         Captcha captcha = (Captcha) session.getAttribute(Captcha.NAME);
         request.setCharacterEncoding("UTF-8"); // Do this so we can capture non-Latin chars

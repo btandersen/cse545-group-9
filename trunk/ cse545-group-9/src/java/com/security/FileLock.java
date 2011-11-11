@@ -59,153 +59,158 @@ public class FileLock extends HttpServlet
 
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
-        
+
         boolean cleanInput = false;
         String inputRegex = "[\\w\\s]{1,45}+";
         Pattern inputPattern = Pattern.compile(inputRegex);
-        cleanInput = (inputPattern.matcher(title).matches());
+        
+        if (title != null)
+        {
+            cleanInput = (inputPattern.matcher(title).matches());
+        }
 
         if (cleanInput)
-        {try
         {
-            Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement ownerStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-            Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-
-            ResultSet userRs = null;
-            ResultSet docRs = null;
-            ResultSet ownerRs = null;
-            ResultSet shareRs = null;
-
-            String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                    + " WHERE " + "uname" + " = '" + user + "'";
-
-            String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
-                    + " WHERE " + "title" + " = '" + title + "'";
-
-            userRs = userStmt.executeQuery(userQuery);
-            docRs = docStmt.executeQuery(docQuery);
-
-            if (userRs.next() && docRs.next())
+            try
             {
-                String uid = String.valueOf(userRs.getInt("uid"));
-                String userDept = userRs.getString("dept");
-                int role = userRs.getInt("role");
+                Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement docStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement ownerStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
-                String did = String.valueOf(docRs.getInt("did"));
-                String docDept = docRs.getString("dept");
-                String ouid = String.valueOf(docRs.getInt("ouid"));
+                ResultSet userRs = null;
+                ResultSet docRs = null;
+                ResultSet ownerRs = null;
+                ResultSet shareRs = null;
 
-                String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
-                        + " WHERE " + "uid" + " = " + ouid + "";
+                String userQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                        + " WHERE " + "uname" + " = '" + user + "'";
 
-                String shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
-                        + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "L" + "'";
+                String docQuery = "SELECT * FROM " + "mydb" + "." + "Docs"
+                        + " WHERE " + "title" + " = '" + title + "'";
 
-                ownerRs = ownerStmt.executeQuery(ownerQuery);
-                shareRs = shareStmt.executeQuery(shareQuery);
+                userRs = userStmt.executeQuery(userQuery);
+                docRs = docStmt.executeQuery(docQuery);
 
-                int ownerRole = 0;
-
-                if (ownerRs.next())
+                if (userRs.next() && docRs.next())
                 {
-                    ownerRole = ownerRs.getInt("role");
-                }
+                    String uid = String.valueOf(userRs.getInt("uid"));
+                    String userDept = userRs.getString("dept");
+                    int role = userRs.getInt("role");
 
-                boolean shared = false;
-                boolean lockPerm = false;
+                    String did = String.valueOf(docRs.getInt("did"));
+                    String docDept = docRs.getString("dept");
+                    String ouid = String.valueOf(docRs.getInt("ouid"));
 
-                if (shareRs.next())
-                {
-                    shared = true;
-                    lockPerm = shareRs.getString("perm").equals("L");
-                }
+                    String ownerQuery = "SELECT * FROM " + "mydb" + "." + "Users"
+                            + " WHERE " + "uid" + " = " + ouid + "";
 
-                boolean userIsOwner = uid.equals(ouid);
-                boolean userIsManager = (role > Roles.REG_EMP.ordinal());
-                boolean userMeetsRoleReq = (role >= ownerRole);
-                boolean userMeetsDeptReq = (userDept.contains(docDept));
+                    String shareQuery = "SELECT * FROM " + "mydb" + "." + "Shared"
+                            + " WHERE " + "sdid" + "=" + did + " AND " + "suid" + "=" + uid + " AND " + "perm" + " = '" + "L" + "'";
 
-                if (userIsOwner || (shared && lockPerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
-                {
-                    try
+                    ownerRs = ownerStmt.executeQuery(ownerQuery);
+                    shareRs = shareStmt.executeQuery(shareQuery);
+
+                    int ownerRole = 0;
+
+                    if (ownerRs.next())
                     {
-                        Statement lockStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-                        String lockQuery = "INSERT INTO mydb.Locked (ldid,luid) VALUES ("
-                                + did + ","
-                                + uid + ")";
+                        ownerRole = ownerRs.getInt("role");
+                    }
 
-                        lockStmt.executeUpdate(lockQuery);
-                        result = true;
+                    boolean shared = false;
+                    boolean lockPerm = false;
 
+                    if (shareRs.next())
+                    {
+                        shared = true;
+                        lockPerm = shareRs.getString("perm").equals("L");
+                    }
+
+                    boolean userIsOwner = uid.equals(ouid);
+                    boolean userIsManager = (role > Roles.REG_EMP.ordinal());
+                    boolean userMeetsRoleReq = (role >= ownerRole);
+                    boolean userMeetsDeptReq = (userDept.contains(docDept));
+
+                    if (userIsOwner || (shared && lockPerm) || (userIsManager && userMeetsRoleReq && userMeetsDeptReq))
+                    {
+                        try
+                        {
+                            Statement lockStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                            String lockQuery = "INSERT INTO mydb.Locked (ldid,luid) VALUES ("
+                                    + did + ","
+                                    + uid + ")";
+
+                            lockStmt.executeUpdate(lockQuery);
+                            result = true;
+
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Lock</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>File locked sucessfully...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;FileLockPage");
+                        }
+                        catch (Exception e)
+                        {
+                            // already locked
+                            out.println("<html>");
+                            out.println("<head>");
+                            out.println("<title>File Lock</title>");
+                            out.println("</head>");
+                            out.println("<body>");
+                            out.println("<h1>File is already locked...</h1>");
+                            out.println("</body>");
+                            out.println("</html>");
+                            response.setHeader("Refresh", "5;FileLockPage");
+                        }
+                    }
+                    else
+                    {
+                        // bad permission
                         out.println("<html>");
                         out.println("<head>");
                         out.println("<title>File Lock</title>");
                         out.println("</head>");
                         out.println("<body>");
-                        out.println("<h1>File locked sucessfully...</h1>");
+                        out.println("<h1>You do not have permission to lock this file...</h1>");
                         out.println("</body>");
                         out.println("</html>");
                         response.setHeader("Refresh", "5;FileLockPage");
                     }
-                    catch (Exception e)
-                    {
-                        // already locked
-                        out.println("<html>");
-                        out.println("<head>");
-                        out.println("<title>File Lock</title>");
-                        out.println("</head>");
-                        out.println("<body>");
-                        out.println("<h1>File is already locked...</h1>");
-                        out.println("</body>");
-                        out.println("</html>");
-                        response.setHeader("Refresh", "5;FileLockPage");
-                    }
+
+
                 }
                 else
                 {
-                    // bad permission
+                    // bad user or doc
                     out.println("<html>");
                     out.println("<head>");
                     out.println("<title>File Lock</title>");
                     out.println("</head>");
                     out.println("<body>");
-                    out.println("<h1>You do not have permission to lock this file...</h1>");
+                    out.println("<h1>Invalid user or document...</h1>");
                     out.println("</body>");
                     out.println("</html>");
                     response.setHeader("Refresh", "5;FileLockPage");
                 }
-
-
             }
-            else
+            catch (Exception e)
             {
-                // bad user or doc
+                // SQL error
                 out.println("<html>");
                 out.println("<head>");
                 out.println("<title>File Lock</title>");
                 out.println("</head>");
                 out.println("<body>");
-                out.println("<h1>Invalid user or document...</h1>");
+                out.println("<h1>Error attempting to lock file...</h1>");
                 out.println("</body>");
                 out.println("</html>");
                 response.setHeader("Refresh", "5;FileLockPage");
             }
-        }
-        catch (Exception e)
-        {
-            // SQL error
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>File Lock</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Error attempting to lock file...</h1>");
-            out.println("</body>");
-            out.println("</html>");
-            response.setHeader("Refresh", "5;FileLockPage");
-        }
         }
         else
         {
@@ -215,7 +220,7 @@ public class FileLock extends HttpServlet
             out.println("<title>File Lock</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Detected invalid input characters for title...</h1>");
+            out.println("<h1>Detected invalid input for title...</h1>");
             out.println("</body>");
             out.println("</html>");
             response.setHeader("Refresh", "5;FileLockPage");

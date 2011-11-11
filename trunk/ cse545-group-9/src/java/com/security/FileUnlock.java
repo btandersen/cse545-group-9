@@ -63,7 +63,11 @@ public class FileUnlock extends HttpServlet
         boolean cleanInput = false;
         String inputRegex = "[\\w\\s]{1,45}+";
         Pattern inputPattern = Pattern.compile(inputRegex);
-        cleanInput = (inputPattern.matcher(title).matches());
+        
+        if (title != null)
+        {
+            cleanInput = (inputPattern.matcher(title).matches());
+        }
 
         if (cleanInput)
         {
@@ -178,7 +182,7 @@ public class FileUnlock extends HttpServlet
             out.println("<title>File Unlock</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Detected invalid input characters for title...</h1>");
+            out.println("<h1>Detected invalid input for title...</h1>");
             out.println("</body>");
             out.println("</html>");
             response.setHeader("Refresh", "5;FileUnlockPage");

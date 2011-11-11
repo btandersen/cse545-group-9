@@ -67,7 +67,11 @@ public class DeleteUser extends HttpServlet
                 boolean cleanInput = false;
                 String inputRegex = "[\\w]{1,45}+";
                 Pattern inputPattern = Pattern.compile(inputRegex);
-                cleanInput = (inputPattern.matcher(uname).matches());
+                
+                if (uname != null)
+                {
+                    cleanInput = (inputPattern.matcher(uname).matches());
+                }
 
                 if (cleanInput)
                 {
@@ -131,7 +135,7 @@ public class DeleteUser extends HttpServlet
                     out.println("<title>Delete User</title>");
                     out.println("</head>");
                     out.println("<body>");
-                    out.println("<h1>Detected invalid input characters in username...</h1>");
+                    out.println("<h1>Detected invalid input...</h1>");
                     out.println("</body>");
                     out.println("</html>");
                     response.setHeader("Refresh", "5;UpdateUserPage");
