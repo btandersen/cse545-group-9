@@ -290,7 +290,7 @@ public class FileUpdate extends HttpServlet
                                             {
                                                 try
                                                 {
-                                                    if (userDept.contains(newDept))
+                                                    if (userDept.contains(newDept) || shared)
                                                     {
                                                         PreparedStatement psmt = null;
 

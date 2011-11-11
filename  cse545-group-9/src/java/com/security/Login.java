@@ -66,7 +66,12 @@ public class Login extends HttpServlet
         boolean cleanInput = false;
         String inputRegex = "[\\w]{1,45}+";
         Pattern inputPattern = Pattern.compile(inputRegex);
-        cleanInput = (inputPattern.matcher(user).matches());
+        
+        if (user != null)
+        {
+            cleanInput = (inputPattern.matcher(user).matches());
+        }
+        
 
         if (cleanInput)
         {
@@ -186,7 +191,7 @@ public class Login extends HttpServlet
             out.println("<title>Login</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Detected invalid characters in username...</h1>");
+            out.println("<h1>Detected invalid username...</h1>");
             out.println("</body>");
             out.println("</html>");
             response.setHeader("Refresh", "5;index.jsp");

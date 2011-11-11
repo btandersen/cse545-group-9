@@ -65,13 +65,16 @@ public class FileShare extends HttpServlet
         String perm = request.getParameter("perm");
 
         boolean cleanInput = false;
-        String inputRegex = "[\\w\\s]{1,45}+";
-        Pattern inputPattern = Pattern.compile(inputRegex);
-        cleanInput = inputPattern.matcher(title).matches();
 
-        inputRegex = "[\\w]{1,45}+";
-        inputPattern = Pattern.compile(inputRegex);
-        cleanInput = (cleanInput && inputPattern.matcher(shareUser).matches());
+        if ((title != null) && (shareUser != null))
+        {
+            String inputRegex = "[\\w\\s]{1,45}+";
+            Pattern inputPattern = Pattern.compile(inputRegex);
+            cleanInput = inputPattern.matcher(title).matches();
+            inputRegex = "[\\w]{1,45}+";
+            inputPattern = Pattern.compile(inputRegex);
+            cleanInput = (cleanInput && inputPattern.matcher(shareUser).matches());
+        }
 
         if (cleanInput)
         {
