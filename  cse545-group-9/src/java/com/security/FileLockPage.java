@@ -60,8 +60,50 @@ public class FileLockPage extends HttpServlet
             out.println("<html>");
             out.println("<head>");
             out.println("<title>File Lock Page</title>");
+            out.println("<LINK href=\"../css/style.css\" rel=\"stylesheet\" type=\"text/css\" />");
             out.println("</head>");
             out.println("<body>");
+            out.println("<div id=\"container\">");
+            out.println("<div id=\"header\"><h1>Web Document Management System</h1></div>");
+            out.println("<div id=\"content\">");
+
+            try
+            {
+                Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+                ResultSet userRs = null;
+                String userQuery = "";
+                String uname = request.getRemoteUser();
+                userQuery = "SELECT U.uid, U.uname, U.role, U.dept, G.groupid "
+                        + "FROM Users U, Groups G "
+                        + "WHERE U.uname='" + uname + "' "
+                        + "AND U.uname=G.uname";
+
+                userRs = userStmt.executeQuery(userQuery);
+
+                if (userRs.next())
+                {
+                    out.println("<div id=\"currentuser\"><table>");
+                    out.println("<tr><th>Current User</th></tr><tr><th>User ID</th><th>User Name</th><th>Role</th><th>Dept</th><th>Group</th></tr>");
+                    out.println("<tr>");
+                    out.println("<td>" + userRs.getInt("uid") + "</td>"
+                            + "<td>" + userRs.getString("uname") + "</td>"
+                            + "<td>" + Roles.values()[userRs.getInt("role")] + "</td>"
+                            + "<td>" + userRs.getString("dept") + "</td>"
+                            + "<td>" + userRs.getString("groupid") + "</td>");
+                    out.println("</tr>");
+                    out.println("</table><div>");
+                }
+                else
+                {
+                    // user not found in database
+                }
+            }
+            catch (SQLException e)
+            {
+                // error retrieving current user from db
+            }
+
+            out.println("<div><a href=\"user.jsp\" >Return to User Page</a></div>");
 
             String uname = request.getRemoteUser();
             String uid = null;
@@ -156,7 +198,7 @@ public class FileLockPage extends HttpServlet
                     if (userIsManager || userIsRegEmp)
                     {
                         out.println("<table><th>Owned</th>");
-                        out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
+                        out.println("<div id=\"owneddocs\"><tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
 
                         while (docRs.next())
                         {
@@ -167,14 +209,14 @@ public class FileLockPage extends HttpServlet
                                     + docRs.getString("uname") + "</td><td>"
                                     + docRs.getString("filename") + "</td><td>"
                                     + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
-                            out.println("</tr>");
+                            out.println("</tr></div>");
                         }
 
                         out.println("</table>");
                     }
 
                     out.println("<table><th>Shared</th>");
-                    out.println("<tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
+                    out.println("<div id=\"shareddocs\"><tr><th>Title</th><th>Author</th><th>Department</th><th>Owner</th><th>filename</th></tr>");
 
                     while (shareRs.next())
                     {
@@ -188,7 +230,7 @@ public class FileLockPage extends HttpServlet
                         out.println("</tr>");
                     }
 
-                    out.println("<tr><td><input type=submit value=submit /></td></tr>");
+                    out.println("</div><tr><td><input type=submit value=submit /></td></tr>");
                     out.println("</table>");
                     out.println("</form>");
                 }
@@ -210,10 +252,10 @@ public class FileLockPage extends HttpServlet
         }
         finally
         {
-            out.println("<a href=\"user.jsp\" >Return to User Page</a>");
+            out.println("</div>");
+            out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
             out.println("</body>");
             out.println("</html>");
-            out.close();
         }
     }
 

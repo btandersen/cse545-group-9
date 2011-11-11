@@ -53,3 +53,33 @@ html
     float: left;
     padding: 5px;
 }
+
+#filedelete
+{
+    float: left;
+    padding: 5px;
+}
+
+#owneddocs
+{
+    float: left;
+    padding: 5px;
+}
+
+#shareddocs
+{
+    float: left;
+    padding: 5px;
+}
+
+#fileshare
+{
+    float: left;
+    padding: 5px;
+}
+
+#updatefile
+{
+    float: left;
+    padding: 5px;
+}
