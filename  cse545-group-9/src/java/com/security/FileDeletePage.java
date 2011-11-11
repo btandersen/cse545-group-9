@@ -103,8 +103,6 @@ public class FileDeletePage extends HttpServlet
                 // error retrieving current user from db
             }
 
-            out.println("<div><a href=\"user.jsp\" >Return to User Page</a></div>");
-
             String uname = request.getRemoteUser();
             String uid = null;
             int userRole = 0;
@@ -204,6 +202,7 @@ public class FileDeletePage extends HttpServlet
                 e.printStackTrace();
             }
             
+            out.println("<div><a href=\"user.jsp\" >Return to User Page</a></div>");
             out.println("</div>");
             out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
             out.println("</body>");

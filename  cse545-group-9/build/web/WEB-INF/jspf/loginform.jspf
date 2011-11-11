@@ -1,7 +1,7 @@
 <div id="login">
     <h2>Login</h2>
     <p>Please enter your username and password to login</p>
-    <form action="Login" method="post">
+    <form action="/WebDocManager/Login" method="post">
         <table>
             <tbody>
                 <tr>
