@@ -270,6 +270,9 @@ public class FileUpdatePage extends HttpServlet
                             + "<option value=\"FN\">FN</option>"
                             + "</select></td></tr>");
                     out.println("<tr><td>Choose the file To Update</td><td><input name=\"file\" type=\"file\" /></td></tr>");
+                    
+                    out.println("<tr><td colspan=\"5\"><hr /></td><tr><tr><td>Enter pass phrase and select YES for encryption:</td><td><input name=\"key\" type=\"password\" /></td><td><input type=\"radio\" name=\"enc\" value=\"yes\"/>YES<br /><input type=\"radio\" name=\"enc\" value=\"no\" Checked />NO</td></tr>");
+                    
                     out.println("<tr><td colspan=\"2\"><input type=\"submit\" value=\"Submit\" /></td></tr>");
                     out.println("</table>");
                     out.println("</FORM></div>");

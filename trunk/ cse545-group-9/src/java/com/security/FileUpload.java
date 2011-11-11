@@ -60,6 +60,8 @@ public class FileUpload extends HttpServlet
         boolean validFileType = false;
         String user = request.getRemoteUser();
         String title = null;
+        String encrypt = null;
+        String key = null;
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -130,6 +132,14 @@ public class FileUpload extends HttpServlet
                                     {
                                         dept = value;
                                     }
+                                    else if (name.equals("key"))
+                                    {
+                                        key = value;
+                                    }
+                                    else if (name.equals("enc"))
+                                    {
+                                        encrypt = value;
+                                    }
                                     else
                                     {
                                         // name is wrong
@@ -169,10 +179,12 @@ public class FileUpload extends HttpServlet
                             Matcher titleMatcher = titlePattern.matcher(title);
                             Matcher authMatcher = authPattern.matcher(auth);
                             Matcher filenameMatcher = filenamePattern.matcher(filename);
-                            
-                            AESEncrypt enc = new AESEncrypt();
-                            
-                            uploadedStream = enc.encryptfile(uploadedStream, "password");
+
+                            if ((key != null) && (encrypt != null) && encrypt.equalsIgnoreCase("yes"))
+                            {
+                                AESEncrypt enc = new AESEncrypt();
+                                uploadedStream = enc.encryptfile(uploadedStream, key);
+                            }
 
                             if ((title != null) && !(title.isEmpty()) && titleMatcher.matches())
                             {

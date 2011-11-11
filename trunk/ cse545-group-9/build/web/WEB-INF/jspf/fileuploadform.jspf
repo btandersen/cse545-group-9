@@ -25,6 +25,14 @@
             </td>
         </tr>
         <tr>
+            <td>Enter pass phrase and select YES for encryption:</td>
+            <td><input name="key" type="password" /></td>
+            <td>
+                <input type="radio" name="enc" value="yes"/>YES<br />
+                <input type="radio" name="enc" value="no" Checked />NO
+            </td>
+        </tr>
+        <tr>
             <td>Choose the file To Upload:</td>
             <td><input name="file" type="file" /></td>
         </tr>

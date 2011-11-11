@@ -59,6 +59,8 @@ public class FileUpdate extends HttpServlet
         boolean validFileType = false;
         String user = request.getRemoteUser();
         String title = "";
+        String encrypt = null;
+        String key = null;
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -132,6 +134,14 @@ public class FileUpdate extends HttpServlet
                             else if (name.equals("newdept"))
                             {
                                 newDept = value;
+                            }
+                            else if (name.equals("key"))
+                            {
+                                key = value;
+                            }
+                            else if (name.equals("enc"))
+                            {
+                                encrypt = value;
                             }
                             else
                             {
@@ -221,6 +231,12 @@ public class FileUpdate extends HttpServlet
                         Matcher titleMatcher = titlePattern.matcher(newTitle);
                         Matcher authMatcher = authPattern.matcher(newAuth);
                         Matcher filenameMatcher = filenamePattern.matcher(newFilename);
+
+                        if ((key != null) && (encrypt != null) && encrypt.equalsIgnoreCase("yes"))
+                        {
+                            AESEncrypt enc = new AESEncrypt();
+                            uploadedStream = enc.encryptfile(uploadedStream, key);
+                        }
 
                         validFileType = (newFilename.endsWith(".pdf")
                                 || newFilename.endsWith(".doc")

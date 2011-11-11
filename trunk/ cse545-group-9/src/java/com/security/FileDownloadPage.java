@@ -226,6 +226,8 @@ public class FileDownloadPage extends HttpServlet
                                 + "<input type=\"radio\" name=\"title\" value=\"" + shareRs.getString("title") + "\"></td>");
                         out.println("</tr></div>");
                     }
+                    
+                    out.println("<tr><td colspan=\"5\"><hr /></td><tr><tr><td>Enter pass phrase and select YES for decryption:</td><td><input name=\"key\" type=\"password\" /></td><td><input type=\"radio\" name=\"dec\" value=\"yes\"/>YES<br /><input type=\"radio\" name=\"dec\" value=\"no\" Checked />NO</td></tr>");
 
                     out.println("<tr><td><input type=\"submit\" value=\"Submit\" /></td></tr>");
                     out.println("</table>");

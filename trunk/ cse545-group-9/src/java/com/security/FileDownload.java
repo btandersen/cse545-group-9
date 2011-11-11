@@ -66,6 +66,8 @@ public class FileDownload extends HttpServlet
 
         String user = request.getRemoteUser();
         String title = request.getParameter("title");
+        String decrypt = request.getParameter("dec");
+        String key = request.getParameter("key");
 
         boolean cleanInput = false;
         String inputRegex = "[\\w\\s]{1,45}+";
@@ -147,12 +149,13 @@ public class FileDownload extends HttpServlet
                                 if (b != null)
                                 {
                                     InputStream is = b.getBinaryStream();
-                                    
-                                    // test dec
-                                    AESDecrypt dec = new AESDecrypt();
-                                    is = dec.decryptfile(is, "password");
-                                    // end test                                    
-                                    
+
+                                    if ((key != null) && (decrypt != null) && decrypt.equalsIgnoreCase("yes"))
+                                    {
+                                        AESDecrypt dec = new AESDecrypt();
+                                        is = dec.decryptfile(is, key);
+                                    }
+
                                     BufferedInputStream buf = new BufferedInputStream(is);
                                     //ServletOutputStream
                                     fileOut = response.getOutputStream();
