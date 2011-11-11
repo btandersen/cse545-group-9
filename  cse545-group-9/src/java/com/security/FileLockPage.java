@@ -91,7 +91,7 @@ public class FileLockPage extends HttpServlet
                             + "<td>" + userRs.getString("dept") + "</td>"
                             + "<td>" + userRs.getString("groupid") + "</td>");
                     out.println("</tr>");
-                    out.println("</table><div>");
+                    out.println("</table></div>");
                 }
                 else
                 {
@@ -103,7 +103,7 @@ public class FileLockPage extends HttpServlet
                 // error retrieving current user from db
             }
 
-            out.println("<div><a href=\"user.jsp\" >Return to User Page</a></div>");
+            out.println("<hr />");
 
             String uname = request.getRemoteUser();
             String uid = null;
@@ -147,13 +147,13 @@ public class FileLockPage extends HttpServlet
                                 + "AND U.uid=A.ouid "
                                 + "AND NOT EXISTS (SELECT * FROM Users U WHERE U.role>" + userRole + " AND U.uid=A.ouid) "
                                 + "AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
-                        
+
                         shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Shared B, Users U "
                                 + "WHERE B.perm='L' AND B.sdid=A.did AND B.suid=" + uid + " "
                                 + "AND U.uid=A.ouid "
                                 + "AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
-                        
+
                         docRs = docStmt.executeQuery(docQuery);
                         shareRs = shareStmt.executeQuery(shareQuery);
                     }
@@ -164,8 +164,8 @@ public class FileLockPage extends HttpServlet
                                 + "FROM Docs A, Users U "
                                 + "WHERE A.ouid=" + uid + " "
                                 + "AND U.uid=A.ouid "
-                                + "AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";                        
-                        
+                                + "AND NOT EXISTS (SELECT * FROM Locked L WHERE A.did=L.ldid)";
+
                         shareQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Shared B, Users U "
                                 + "WHERE B.perm='L' AND B.sdid=A.did AND B.suid=" + uid + " "
@@ -252,6 +252,7 @@ public class FileLockPage extends HttpServlet
         }
         finally
         {
+            out.println("<div><a href=\"user.jsp\" >Return to User Page</a></div>");
             out.println("</div>");
             out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
             out.println("</body>");

@@ -103,7 +103,7 @@ public class AdminLogPage extends HttpServlet
                 // error retrieving current user from db
             }
             
-            out.println("<div><a href=\"admin.jsp\" >Return to Admin Page</a></div>");
+            out.println("<hr />");
 
             if (request.isUserInRole("admin"))
             {
@@ -162,6 +162,7 @@ public class AdminLogPage extends HttpServlet
             out.println("<h1>Error reporting results...</h1>");
         }
         
+        out.println("<div id=\"return\"><a href=\"admin.jsp\" >Return to Admin Page</a></div>");
         out.println("</div>");
         out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
         out.println("</body>");

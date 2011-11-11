@@ -103,7 +103,7 @@ public class FileDownloadPage extends HttpServlet
                 // error retrieving current user from db
             }
 
-            out.println("<div><a href=\"user.jsp\" >Return to User Page</a></div>");
+            out.println("<hr />");
 
             String uname = request.getRemoteUser();
             String uid = null;
@@ -226,7 +226,7 @@ public class FileDownloadPage extends HttpServlet
                                 + "<input type=\"radio\" name=\"title\" value=\"" + shareRs.getString("title") + "\"></td>");
                         out.println("</tr></div>");
                     }
-                    
+
                     out.println("<tr><td colspan=\"5\"><hr /></td><tr><tr><td>Enter pass phrase and select YES for decryption:</td><td><input name=\"key\" type=\"password\" /></td><td><input type=\"radio\" name=\"dec\" value=\"yes\"/>YES<br /><input type=\"radio\" name=\"dec\" value=\"no\" Checked />NO</td></tr>");
 
                     out.println("<tr><td><input type=\"submit\" value=\"Submit\" /></td></tr>");
@@ -243,6 +243,7 @@ public class FileDownloadPage extends HttpServlet
                 // SQL Error
             }
 
+            out.println("<div><a href=\"user.jsp\" >Return to User Page</a></div>");
             out.println("</div>");
             out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
             out.println("</body>");

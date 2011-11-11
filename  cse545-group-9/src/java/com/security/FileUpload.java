@@ -297,7 +297,14 @@ public class FileUpload extends HttpServlet
                             out.println("<title>File Upload</title>");
                             out.println("</head>");
                             out.println("<body>");
-                            out.println("<h1>Error encountered uploading file...</h1>");
+                            if (e.getMessage().contains("Duplicate"))
+                            {
+                                out.println("<h1>File already exists with that title and/or filename...</h1>");
+                            }
+                            else
+                            {
+                                out.println("<h1>Error uploading file...</h1>");
+                            }
                             out.println("</body>");
                             out.println("</html>");
                             response.setHeader("Refresh", "5;fileupload.jsp");

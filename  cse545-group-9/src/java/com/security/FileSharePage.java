@@ -93,7 +93,7 @@ public class FileSharePage extends HttpServlet
                             + "<td>" + userRs.getString("dept") + "</td>"
                             + "<td>" + userRs.getString("groupid") + "</td>");
                     out.println("</tr>");
-                    out.println("</table><div>");
+                    out.println("</table></div>");
                 }
                 else
                 {
@@ -105,7 +105,7 @@ public class FileSharePage extends HttpServlet
                 // error retrieving current user from db
             }
 
-            out.println("<div><a href=\"user.jsp\" >Return to User Page</a></div>");
+            out.println("<hr />");
 
             Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
             Statement shareStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
@@ -219,6 +219,7 @@ public class FileSharePage extends HttpServlet
         }
         finally
         {
+            out.println("<div id=\"return\"><a href=\"user.jsp\" >Return to User Page</a></div>");
             out.println("</div>");
             out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
             out.println("</body>");
