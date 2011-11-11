@@ -103,7 +103,7 @@ public class FileUnlockPage extends HttpServlet
                 // error retrieving current user from db
             }
 
-            out.println("<div><a href=\"user.jsp\" >Return to User Page</a></div>");
+            out.println("<hr />");
 
             String uname = request.getRemoteUser();
             String uid = null;
@@ -252,6 +252,7 @@ public class FileUnlockPage extends HttpServlet
         }
         finally
         {
+            out.println("<div id=\"return\"><a href=\"user.jsp\" >Return to User Page</a></div>");
             out.println("</div>");
             out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
             out.println("</body>");

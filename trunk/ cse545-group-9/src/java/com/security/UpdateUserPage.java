@@ -104,7 +104,7 @@ public class UpdateUserPage extends HttpServlet
                 // error retrieving current user from db
             }
             
-            out.println("<div><a href=\"admin.jsp\" >Return to Admin Page</a></div>");
+            out.println("<hr />");
 
             Statement userStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 
@@ -180,6 +180,7 @@ public class UpdateUserPage extends HttpServlet
                 // SQL Error
             }
 
+            out.println("<div id=\"return\"><a href=\"admin.jsp\" >Return to Admin Page</a></div>");
             out.println("</div>");
             out.println("<div id=\"footer\"><p>CSE 545 | Group 9</p></div>");
             out.println("</body>");

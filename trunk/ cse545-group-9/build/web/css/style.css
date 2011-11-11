@@ -78,6 +78,11 @@ html
     padding: 5px;
 }
 
+#return
+{
+    clear: both;
+}
+
 #updatefile
 {
     float: left;
