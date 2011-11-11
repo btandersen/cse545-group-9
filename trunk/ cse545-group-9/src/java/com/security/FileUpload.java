@@ -169,6 +169,10 @@ public class FileUpload extends HttpServlet
                             Matcher titleMatcher = titlePattern.matcher(title);
                             Matcher authMatcher = authPattern.matcher(auth);
                             Matcher filenameMatcher = filenamePattern.matcher(filename);
+                            
+                            AESEncrypt enc = new AESEncrypt();
+                            
+                            uploadedStream = enc.encryptfile(uploadedStream, "password");
 
                             if ((title != null) && !(title.isEmpty()) && titleMatcher.matches())
                             {

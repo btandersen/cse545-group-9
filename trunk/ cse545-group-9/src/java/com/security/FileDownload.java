@@ -70,7 +70,7 @@ public class FileDownload extends HttpServlet
         boolean cleanInput = false;
         String inputRegex = "[\\w\\s]{1,45}+";
         Pattern inputPattern = Pattern.compile(inputRegex);
-        
+
         if (title != null)
         {
             cleanInput = (inputPattern.matcher(title).matches());
@@ -147,6 +147,12 @@ public class FileDownload extends HttpServlet
                                 if (b != null)
                                 {
                                     InputStream is = b.getBinaryStream();
+                                    
+                                    // test dec
+                                    AESDecrypt dec = new AESDecrypt();
+                                    is = dec.decryptfile(is, "password");
+                                    // end test                                    
+                                    
                                     BufferedInputStream buf = new BufferedInputStream(is);
                                     //ServletOutputStream
                                     fileOut = response.getOutputStream();
