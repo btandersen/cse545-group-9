@@ -102,6 +102,16 @@ public class NewUser extends HttpServlet
             pwdMatch = pwdMatcher.matches();
         }
         
+        boolean firstThree = false;
+        
+        if (pwdMatch)
+        {
+            String first = pwd.substring(0, 1);
+            String second = pwd.substring(1, 2);
+            String third = pwd.substring(2, 3);
+            firstThree = !(first.equals(second) && second.equals(third));
+        }
+
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
@@ -123,7 +133,8 @@ public class NewUser extends HttpServlet
                                 && !pwd.contains(uname)
                                 && (pwd.indexOf("!") != 0)
                                 && (pwd.indexOf("?") != 0)
-                                && !uname.contains(pwd.substring(0, 3)))
+                                && !uname.contains(pwd.substring(0, 3))
+                                && firstThree)
                         {
                             String query = "";
 
