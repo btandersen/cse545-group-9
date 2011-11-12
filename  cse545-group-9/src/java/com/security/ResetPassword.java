@@ -25,7 +25,7 @@ public class ResetPassword extends HttpServlet
     InitialContext ctx;
     DataSource ds;
     Connection conn;
-
+    
     @Override
     public void init(ServletConfig config) throws ServletException
     {
@@ -55,21 +55,31 @@ public class ResetPassword extends HttpServlet
             throws ServletException, IOException
     {
         final String PWD_REGEX = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\\`\\!\\@\\$\\%\\^\\&\\*\\(\\)\\-\\_\\=\\+\\[\\]\\;\\:\\'\"\\,\\<\\.\\>\\/\\?]).{8,20})";
-
+        
         String uname = request.getRemoteUser();
         String currentPwd = request.getParameter("current_pwd");
         String pwd = request.getParameter("new_pwd");
         String pwd1 = request.getParameter("new_pwd1");
-
+        
         Pattern pwdPattern = Pattern.compile(PWD_REGEX);
         Matcher pwdMatcher = null;
         pwdMatcher = pwdPattern.matcher(pwd);
-
+        
         boolean pwdMatch = pwdMatcher.matches();
-
+        
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-
+        
+        boolean firstThree = false;
+        
+        if (pwdMatch)
+        {
+            String first = pwd.substring(0, 1);
+            String second = pwd.substring(1, 2);
+            String third = pwd.substring(2, 3);
+            firstThree = !(first.equals(second) && second.equals(third));
+        }
+        
         try
         {
             if (pwdMatch
@@ -77,10 +87,11 @@ public class ResetPassword extends HttpServlet
                     && !pwd.contains(uname)
                     && (pwd.indexOf("!") != 0)
                     && (pwd.indexOf("?") != 0)
-                    && !uname.contains(pwd.substring(0, 3)))
+                    && !uname.contains(pwd.substring(0, 3))
+                    && firstThree)
             {
                 String updateQuery = "";
-
+                
                 try
                 {
                     //open connection to db
@@ -88,7 +99,7 @@ public class ResetPassword extends HttpServlet
 
                     //query = "SELECT U.uname,U.pwd FROM mydb.users WHERE U.uname='" + uname + "' AND U.pwd='md5('" + currentPwd + "')'";
                     updateQuery = "UPDATE mydb.Users U SET U.pwd=md5('" + pwd + "') WHERE uname='" + uname + "' AND U.pwd=md5('" + currentPwd + "')";
-
+                    
                     update.executeUpdate(updateQuery);
                     out.println("<html>");
                     out.println("<head>");
@@ -141,7 +152,7 @@ public class ResetPassword extends HttpServlet
             out.println("</html>");
             response.setHeader("Refresh", "5;user.jsp");
         }
-
+        
         out.close();
     }
 
