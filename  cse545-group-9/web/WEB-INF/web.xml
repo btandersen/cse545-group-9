@@ -92,6 +92,10 @@
         <servlet-name>SimpleCaptcha</servlet-name>
         <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DocListPage</servlet-name>
+        <servlet-class>com.security.DocListPage</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -184,6 +188,10 @@
     <servlet-mapping>
         <servlet-name>SimpleCaptcha</servlet-name>
         <url-pattern>/simpleCaptcha.jpg</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DocListPage</servlet-name>
+        <url-pattern>/user/DocListPage</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>5</session-timeout>

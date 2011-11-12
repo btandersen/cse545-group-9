@@ -18,7 +18,7 @@ import javax.naming.*;
  *
  * @author Administrator
  */
-public class FileDownloadPage extends HttpServlet
+public class DocListPage extends HttpServlet
 {
     private InitialContext ctx;
     private DataSource ds;
@@ -59,7 +59,7 @@ public class FileDownloadPage extends HttpServlet
         {
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>File Read Page</title>");
+            out.println("<title>Show Document List Page</title>");
             out.println("<LINK href=\"../css/style.css\" rel=\"stylesheet\" type=\"text/css\" />");
             out.println("</head>");
             out.println("<body>");
@@ -140,8 +140,6 @@ public class FileDownloadPage extends HttpServlet
                     if (userIsManager)
                     {
                         // share, own, dept
-                        //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE (A.ouid=" + uid + ") OR (A.dept='" + userDept + "')";
-                        //shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Users U "
                                 + "WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) "
@@ -159,9 +157,7 @@ public class FileDownloadPage extends HttpServlet
                     else if (userIsRegEmp)
                     {
                         // share, own
-                        //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
-                        //shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
-                        docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
+                       docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Users U "
                                 + "WHERE A.ouid=" + uid + " "
                                 + "AND U.uid=A.ouid";
@@ -190,8 +186,6 @@ public class FileDownloadPage extends HttpServlet
                         // invalid role
                     }
 
-                    out.println("<form action=\"FileDownload\" method=POST>");
-
                     if (userIsManager || userIsRegEmp)
                     {
                         out.println("<table><th>Owned</th>");
@@ -204,8 +198,7 @@ public class FileDownloadPage extends HttpServlet
                                     + docRs.getString("auth") + "</td><td>"
                                     + docRs.getString("dept") + "</td><td>"
                                     + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
-                                    + docRs.getString("filename") + "</td><td>"
-                                    + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
+                                    + docRs.getString("filename") + "</td><td>");
                             out.println("</tr></div>");
                         }
 
@@ -222,16 +215,11 @@ public class FileDownloadPage extends HttpServlet
                                 + shareRs.getString("auth") + "</td><td>"
                                 + shareRs.getString("dept") + "</td><td>"
                                 + String.valueOf(shareRs.getInt("ouid")) + "</td><td>"
-                                + shareRs.getString("filename") + "</td><td>"
-                                + "<input type=\"radio\" name=\"title\" value=\"" + shareRs.getString("title") + "\"></td>");
+                                + shareRs.getString("filename") + "</td><td>");
                         out.println("</tr></div>");
                     }
 
-                    out.println("<tr><td colspan=\"5\"><hr /></td><tr><tr><td>Enter pass phrase and select YES for decryption:</td><td><input name=\"key\" type=\"password\" /></td><td><input type=\"radio\" name=\"dec\" value=\"yes\"/>YES<br /><input type=\"radio\" name=\"dec\" value=\"no\" Checked />NO</td></tr>");
-
-                    out.println("<tr><td><input type=\"submit\" value=\"Submit\" /></td></tr>");
                     out.println("</table>");
-                    out.println("</form>");
                 }
                 else
                 {
