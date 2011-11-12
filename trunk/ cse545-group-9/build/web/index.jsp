@@ -18,6 +18,7 @@
             <div id="content">
                 <%@include file="WEB-INF/jspf/loginform.jspf" %>
                 <%@include file="WEB-INF/jspf/newuserform.jspf" %>
+                <%@include file="WEB-INF/jspf/password_reqs.jspf" %>
             </div>
             <%@include file="WEB-INF/jspf/footer.jspf" %>
         </div>

@@ -74,11 +74,10 @@ public class ResetPassword extends HttpServlet
         {
             if (pwdMatch
                     && pwd.equals(pwd1)
-                    && !pwd.equals(currentPwd)
                     && !pwd.contains(uname)
                     && (pwd.indexOf("!") != 0)
                     && (pwd.indexOf("?") != 0)
-                    && !pwd.substring(0, 3).equals(uname))
+                    && !uname.contains(pwd.substring(0, 3)))
             {
                 String updateQuery = "";
 
