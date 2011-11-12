@@ -160,13 +160,13 @@ public class FileUpload extends HttpServlet
                                     || filename.endsWith(".doc")
                                     || filename.endsWith(".docx")
                                     || filename.endsWith(".xls")
-                                    || filename.endsWith("xlsx")
-                                    || filename.endsWith("ppt")
-                                    || filename.endsWith("pptx")
+                                    || filename.endsWith(".xlsx")
+                                    || filename.endsWith(".ppt")
+                                    || filename.endsWith(".pptx")
                                     || filename.endsWith(".txt")
-                                    || filename.endsWith("jpg")
-                                    || filename.endsWith("jpeg")
-                                    || filename.endsWith("png"));
+                                    || filename.endsWith(".jpg")
+                                    || filename.endsWith(".jpeg")
+                                    || filename.endsWith(".png"));
 
                             String titleRegex = "[\\w\\s]{1,45}+";
                             String authRegex = "[\\w\\s]{1,45}+";

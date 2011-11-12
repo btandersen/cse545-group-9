@@ -17,35 +17,38 @@
             <%@include file="../WEB-INF/jspf/header.jspf" %>
             <div id="content">
                 <h1>Reset your password</h1>
-                <form action="ResetPassword" method="POST">
-                    <table border="0">
-                        <tbody>
-                            <tr>
-                                <td align="right">Current Password:&nbsp;</td>
-                                <td>
-                                    <input type="password" name="current_pwd" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="right">New Password:&nbsp;</td>
-                                <td>
-                                    <input type="password" name="new_pwd" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="right">Re-enter New Password:&nbsp;</td>
-                                <td>
-                                    <input type="password" name="new_pwd1" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td><input type="submit" value="Update" /></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </form>
-                <a href="user.jsp" >Return to User Page</a>
+                <div id="login">
+                    <form action="ResetPassword" method="POST">
+                        <table border="0">
+                            <tbody>
+                                <tr>
+                                    <td align="right">Current Password:&nbsp;</td>
+                                    <td>
+                                        <input type="password" name="current_pwd" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="right">New Password:&nbsp;</td>
+                                    <td>
+                                        <input type="password" name="new_pwd" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="right">Re-enter New Password:&nbsp;</td>
+                                    <td>
+                                        <input type="password" name="new_pwd1" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><input type="submit" value="Update" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <%@include file="../WEB-INF/jspf/password_reqs.jspf" %>
+                <div id="return"><a href="user.jsp" >Return to User Page</a></div>
             </div>
             <%@include file="../WEB-INF/jspf/footer.jspf" %>
         </div>

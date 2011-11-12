@@ -1,0 +1,22 @@
+<%@ page pageEncoding="UTF-8" %>
+<div id="pwd_reqs">
+    <h3>Document Title Requirements</h3>
+    <p>Must be alphanumeric of length from 1 to 45 characters (whitespace allowed)</p>
+    
+    <h3>Document Author Requirements</h3>
+    <p>Must be alphanumeric of length from 1 to 45 characters (whitespace allowed)</p>
+    
+    <h3>Document Filename Requirements</h3>
+    <p>At least one of the following: alphanumeric, ".", "_", "-", ending with ".{ext}"<br /> where {ext} must be between 1 and 4 characters, with a total length not to exceed 45</p>
+    
+    <h3>Document File Type Requirements</h3>
+    <p>Must be one of the following types:</p>
+    <ul>
+        <li>Word Documents: doc or docx</li>
+        <li>Excel Spreadsheets: xls or xlsx</li>
+        <li>Powerpoints: ppt or pptx</li>
+        <li>Text Documents: txt</li>
+        <li>JPEG Image File: jpg or jpeg</li>
+        <li>PNG Image File: png</li>
+    </ul>
+</div>
