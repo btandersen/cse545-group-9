@@ -155,18 +155,21 @@ public class FileUpload extends HttpServlet
                                     uploadedStream = item.getInputStream();
                                 }
                             }
+                            
+                            String testFileName = filename;
+                            testFileName = testFileName.toLowerCase();
 
-                            validFileType = (filename.endsWith(".pdf")
-                                    || filename.endsWith(".doc")
-                                    || filename.endsWith(".docx")
-                                    || filename.endsWith(".xls")
-                                    || filename.endsWith(".xlsx")
-                                    || filename.endsWith(".ppt")
-                                    || filename.endsWith(".pptx")
-                                    || filename.endsWith(".txt")
-                                    || filename.endsWith(".jpg")
-                                    || filename.endsWith(".jpeg")
-                                    || filename.endsWith(".png"));
+                            validFileType = (testFileName.endsWith(".pdf")
+                                    || testFileName.endsWith(".doc")
+                                    || testFileName.endsWith(".docx")
+                                    || testFileName.endsWith(".xls")
+                                    || testFileName.endsWith(".xlsx")
+                                    || testFileName.endsWith(".ppt")
+                                    || testFileName.endsWith(".pptx")
+                                    || testFileName.endsWith(".txt")
+                                    || testFileName.endsWith(".jpg")
+                                    || testFileName.endsWith(".jpeg")
+                                    || testFileName.endsWith(".png"));
 
                             String titleRegex = "[\\w\\s]{1,45}+";
                             String authRegex = "[\\w\\s]{1,45}+";

@@ -238,17 +238,20 @@ public class FileUpdate extends HttpServlet
                             uploadedStream = enc.encryptfile(uploadedStream, key);
                         }
 
-                        validFileType = (newFilename.endsWith(".pdf")
-                                || newFilename.endsWith(".doc")
-                                || newFilename.endsWith(".docx")
-                                || newFilename.endsWith(".xls")
-                                || newFilename.endsWith("xlsx")
-                                || newFilename.endsWith("ppt")
-                                || newFilename.endsWith("pptx")
-                                || newFilename.endsWith(".txt")
-                                || newFilename.endsWith("jpg")
-                                || newFilename.endsWith("jpeg")
-                                || newFilename.endsWith("png"));
+                        String testFileName = newFilename;
+                        testFileName = testFileName.toLowerCase();
+
+                        validFileType = (testFileName.endsWith(".pdf")
+                                || testFileName.endsWith(".doc")
+                                || testFileName.endsWith(".docx")
+                                || testFileName.endsWith(".xls")
+                                || testFileName.endsWith("xlsx")
+                                || testFileName.endsWith("ppt")
+                                || testFileName.endsWith("pptx")
+                                || testFileName.endsWith(".txt")
+                                || testFileName.endsWith("jpg")
+                                || testFileName.endsWith("jpeg")
+                                || testFileName.endsWith("png"));
 
                         if (titleMatcher.matches())
                         {
