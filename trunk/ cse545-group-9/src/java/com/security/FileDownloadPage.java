@@ -140,8 +140,6 @@ public class FileDownloadPage extends HttpServlet
                     if (userIsManager)
                     {
                         // share, own, dept
-                        //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE (A.ouid=" + uid + ") OR (A.dept='" + userDept + "')";
-                        //shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Users U "
                                 + "WHERE ((A.ouid=" + uid + ") OR (A.dept='" + userDept + "')) "
@@ -159,8 +157,6 @@ public class FileDownloadPage extends HttpServlet
                     else if (userIsRegEmp)
                     {
                         // share, own
-                        //docQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A WHERE A.ouid=" + uid;
-                        //shareQuery = "SELECT A.title, A.auth, A.dept, A.ouid, A.filename FROM Docs A, Shared B WHERE B.perm='R' AND B.sdid=A.did AND B.suid=" + uid;
                         docQuery = "SELECT A.did, A.title, A.auth, A.dept, A.ouid, A.filename, U.uname "
                                 + "FROM Docs A, Users U "
                                 + "WHERE A.ouid=" + uid + " "
@@ -203,7 +199,7 @@ public class FileDownloadPage extends HttpServlet
                             out.println("<td>" + docRs.getString("title") + "</td><td>"
                                     + docRs.getString("auth") + "</td><td>"
                                     + docRs.getString("dept") + "</td><td>"
-                                    + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
+                                    + docRs.getString("uname") + "</td><td>"
                                     + docRs.getString("filename") + "</td><td>"
                                     + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
                             out.println("</tr></div>");
@@ -221,7 +217,7 @@ public class FileDownloadPage extends HttpServlet
                         out.println("<td>" + shareRs.getString("title") + "</td><td>"
                                 + shareRs.getString("auth") + "</td><td>"
                                 + shareRs.getString("dept") + "</td><td>"
-                                + String.valueOf(shareRs.getInt("ouid")) + "</td><td>"
+                                + shareRs.getString("uname") + "</td><td>"
                                 + shareRs.getString("filename") + "</td><td>"
                                 + "<input type=\"radio\" name=\"title\" value=\"" + shareRs.getString("title") + "\"></td>");
                         out.println("</tr></div>");

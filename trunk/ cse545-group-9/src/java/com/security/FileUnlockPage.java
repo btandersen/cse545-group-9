@@ -206,7 +206,7 @@ public class FileUnlockPage extends HttpServlet
                             out.println("<td>" + docRs.getString("title") + "</td><td>"
                                     + docRs.getString("auth") + "</td><td>"
                                     + docRs.getString("dept") + "</td><td>"
-                                    + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
+                                    + docRs.getString("uname") + "</td><td>"
                                     + docRs.getString("filename") + "</td><td>"
                                     + "<input type=\"radio\" name=\"title\" value=\"" + docRs.getString("title") + "\"></td>");
                             out.println("</tr></div>");
@@ -224,7 +224,7 @@ public class FileUnlockPage extends HttpServlet
                         out.println("<td>" + shareRs.getString("title") + "</td><td>"
                                 + shareRs.getString("auth") + "</td><td>"
                                 + shareRs.getString("dept") + "</td><td>"
-                                + String.valueOf(shareRs.getInt("ouid")) + "</td><td>"
+                                + shareRs.getString("uname") + "</td><td>"
                                 + shareRs.getString("filename") + "</td><td>"
                                 + "<input type=\"radio\" name=\"title\" value=\"" + shareRs.getString("title") + "\"></td>");
                         out.println("</tr></div>");

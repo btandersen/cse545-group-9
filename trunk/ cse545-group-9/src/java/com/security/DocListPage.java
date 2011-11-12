@@ -197,7 +197,7 @@ public class DocListPage extends HttpServlet
                             out.println("<td>" + docRs.getString("title") + "</td><td>"
                                     + docRs.getString("auth") + "</td><td>"
                                     + docRs.getString("dept") + "</td><td>"
-                                    + String.valueOf(docRs.getInt("ouid")) + "</td><td>"
+                                    + docRs.getString("uname") + "</td><td>"
                                     + docRs.getString("filename") + "</td><td>");
                             out.println("</tr></div>");
                         }
@@ -214,7 +214,7 @@ public class DocListPage extends HttpServlet
                         out.println("<td>" + shareRs.getString("title") + "</td><td>"
                                 + shareRs.getString("auth") + "</td><td>"
                                 + shareRs.getString("dept") + "</td><td>"
-                                + String.valueOf(shareRs.getInt("ouid")) + "</td><td>"
+                                + shareRs.getString("uname") + "</td><td>"
                                 + shareRs.getString("filename") + "</td><td>");
                         out.println("</tr></div>");
                     }
